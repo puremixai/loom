@@ -9,6 +9,7 @@
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm -r run build",
     "start": "pnpm --filter @skill-manager/server start",
+    "start:prod": "pnpm -r run build && pnpm --filter @skill-manager/server start",
     "test": "pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm -r run lint"

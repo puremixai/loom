@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
 import { healthRoutes } from './routes/health.js';
 import { skillsRoutes } from './routes/skills.js';
 import { projectsRoutes } from './routes/projects.js';
@@ -8,6 +9,7 @@ import { settingsRoutes } from './routes/settings.js';
 import { syncRoutes } from './routes/sync.js';
 import { platformRoutes } from './routes/platform.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
+import { resolveWebDist } from './utils/static.js';
 
 export interface BuildOptions {
   logger?: boolean;
@@ -38,5 +40,18 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   });
 
   app.addHook('onClose', async () => { /* db is file-backed, nothing to close */ });
+
+  const webDist = resolveWebDist();
+  if (webDist) {
+    await app.register(fastifyStatic, { root: webDist, prefix: '/', decorateReply: false });
+    app.setNotFoundHandler((req, reply) => {
+      if (req.url.startsWith('/api/')) {
+        reply.status(404).send({ ok: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
+      } else {
+        reply.type('text/html').sendFile('index.html');
+      }
+    });
+  }
+
   return app;
 }
