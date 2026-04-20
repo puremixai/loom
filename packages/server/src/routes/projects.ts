@@ -4,6 +4,8 @@ import { ProjectService } from '../services/project.js';
 import type { CenterDbStore } from '../storage/center-db.js';
 import { applySkills, unapplySkills, computeDiff, resolveSkills, getLock } from '../services/apply-helpers.js';
 import { readManifest } from '../services/manifest.js';
+import { readRules, writeRules } from '../services/rule.js';
+import { RuleFileSchema } from '@skill-manager/shared';
 
 const AddBody = z.object({ path: z.string().min(1), name: z.string().optional(), notes: z.string().optional() });
 const PatchBody = z.object({ name: z.string().optional(), path: z.string().optional(), notes: z.string().optional() });
@@ -76,5 +78,20 @@ export const projectsRoutes = (deps: { db: CenterDbStore; cachePath?: string }):
       const result = await unapplySkills({ projectPath: project.path, manifest, skillIds: body.skillIds });
       return { ok: true as const, data: result };
     });
+  });
+
+  app.get<{ Params: { id: string } }>('/api/projects/:id/rules', async (req, reply) => {
+    const project = await svc.get(req.params.id);
+    if (!project) { reply.status(404); return { ok: false as const, error: { code: 'NOT_FOUND', message: 'Project not found' } }; }
+    const rules = await readRules(project.path);
+    return { ok: true as const, data: { rules } };
+  });
+
+  app.put<{ Params: { id: string } }>('/api/projects/:id/rules', async (req, reply) => {
+    const rules = RuleFileSchema.parse(req.body);
+    const project = await svc.get(req.params.id);
+    if (!project) { reply.status(404); return { ok: false as const, error: { code: 'NOT_FOUND', message: 'Project not found' } }; }
+    await writeRules(project.path, rules);
+    return { ok: true as const, data: { rules } };
   });
 };
