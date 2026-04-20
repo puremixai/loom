@@ -164,18 +164,23 @@ export async function recommendSkills(
 
 export async function testConnection(config: AiConfig, options: CallAiOptions = {}): Promise<{ ok: true; latencyMs: number } | { ok: false; error: string }> {
   const fetchImpl = options.fetchImpl ?? fetch;
+  const timeoutMs = options.timeoutMs ?? 60_000;
   const start = Date.now();
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const { endpoint, headers, body } = buildRequest(
       config,
       'Reply with a single word: ok',
       'ping',
     );
-    const res = await fetchImpl(endpoint, { method: 'POST', headers, body });
+    const res = await fetchImpl(endpoint, { method: 'POST', headers, body, signal: controller.signal });
     if (!res.ok) return { ok: false, error: `HTTP ${res.status}: ${await res.text()}` };
     await res.json();
     return { ok: true, latencyMs: Date.now() - start };
   } catch (err) {
     return { ok: false, error: (err as Error).message };
+  } finally {
+    clearTimeout(t);
   }
 }

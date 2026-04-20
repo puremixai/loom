@@ -69,6 +69,7 @@ export function useUnapply() {
       }),
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ['manifest', v.projectId] });
+      qc.invalidateQueries({ queryKey: ['projects'] });
     },
   });
 }

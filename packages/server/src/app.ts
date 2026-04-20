@@ -39,8 +39,6 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
     });
   });
 
-  app.addHook('onClose', async () => { /* db is file-backed, nothing to close */ });
-
   const webDist = resolveWebDist();
   if (webDist) {
     await app.register(fastifyStatic, { root: webDist, prefix: '/', decorateReply: false });

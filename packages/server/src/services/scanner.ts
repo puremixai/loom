@@ -1,10 +1,11 @@
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
+import { readFile, access } from 'node:fs/promises';
 import { dirname, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import glob from 'tiny-glob';
 import matter from 'gray-matter';
 import { SKILLS_CACHE_FILE, type Skill } from '@skill-manager/shared';
 import { computeFingerprint } from '../utils/fingerprint.js';
+import { atomicWriteFile } from '../utils/fs-safe.js';
 
 type SourceKind = 'user' | 'custom' | 'plugin';
 
@@ -49,8 +50,7 @@ async function loadCache(path: string): Promise<CacheFile> {
 }
 
 async function saveCache(path: string, data: CacheFile): Promise<void> {
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, JSON.stringify(data, null, 2), 'utf8');
+  await atomicWriteFile(path, JSON.stringify(data, null, 2));
 }
 
 async function pathExists(p: string): Promise<boolean> {

@@ -60,10 +60,7 @@ export function ProjectDetailPage() {
 
   async function previewApply() {
     if (!id) return;
-    const desiredIds = Array.from(new Set([
-      ...selected,
-      ...Array.from(appliedIds).filter(aid => !selected.has(`__remove__${aid}`)),
-    ]));
+    const desiredIds = Array.from(new Set([...selected, ...appliedIds]));
     await diffMut.mutateAsync({ projectId: id, skillIds: desiredIds });
     setDiffOpen(true);
   }
