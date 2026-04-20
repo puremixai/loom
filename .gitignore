@@ -21,3 +21,6 @@ coverage/
 # Skill Manager 运行时
 *.tmp
 .skill-manager-staging-*/
+
+# Claude Code session artifacts
+.claude/
