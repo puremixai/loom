@@ -2,6 +2,7 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import { SkillsPage } from './pages/SkillsPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 export default function App() {
   return (
@@ -20,7 +21,7 @@ export default function App() {
             <Route path="/" element={<ProjectsPage />} />
             <Route path="/projects/:id" element={<ProjectDetailPage />} />
             <Route path="/skills" element={<SkillsPage />} />
-            <Route path="/settings" element={<div>Settings (Task 23)</div>} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </main>
       </div>
