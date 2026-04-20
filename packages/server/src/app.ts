@@ -2,6 +2,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import { healthRoutes } from './routes/health.js';
 import { skillsRoutes } from './routes/skills.js';
+import { projectsRoutes } from './routes/projects.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
 
 export interface BuildOptions {
@@ -19,6 +20,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
 
   await app.register(healthRoutes);
   await app.register(skillsRoutes({ db, cachePath: opts.cachePath }));
+  await app.register(projectsRoutes({ db }));
 
   app.setErrorHandler((err, _req, reply) => {
     reply.status(err.statusCode ?? 500).send({
