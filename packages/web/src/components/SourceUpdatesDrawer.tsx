@@ -76,7 +76,7 @@ export function SourceUpdatesDrawer({ open, onOpenChange }: SourceUpdatesDrawerP
 
   useEffect(() => {
     if (!open) return;
-    check.mutateAsync({}).then(() => setLastCheckedAt(new Date().toISOString())).catch(() => {});
+    check.mutateAsync().then(() => setLastCheckedAt(new Date().toISOString())).catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -89,7 +89,7 @@ export function SourceUpdatesDrawer({ open, onOpenChange }: SourceUpdatesDrawerP
     setActivePull(gitRoot);
     try {
       await pull.mutateAsync({ gitRoot });
-      await check.mutateAsync({});
+      await check.mutateAsync();
       setLastCheckedAt(new Date().toISOString());
     } finally { setActivePull(null); }
   }
@@ -107,7 +107,7 @@ export function SourceUpdatesDrawer({ open, onOpenChange }: SourceUpdatesDrawerP
           </div>
 
           <div className="mb-4 flex items-center gap-3 text-xs text-ink-500">
-            <Button size="sm" variant="secondary" onClick={() => check.mutate({})} disabled={check.isPending}>
+            <Button size="sm" variant="secondary" onClick={() => check.mutate()} disabled={check.isPending}>
               <RefreshCw className="h-3.5 w-3.5" />
               <span className="ml-1">{check.isPending ? 'Checking…' : 'Refresh now'}</span>
             </Button>

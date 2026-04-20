@@ -155,6 +155,22 @@ describe('checkUpdate', () => {
     const s = await checkUpdate(ref, { runner });
     expect(s.error).toContain('network down');
   });
+
+  it('propagates git-not-found error from runner', async () => {
+    const runner = makeRunner({
+      'fetch --quiet': new Error('git-not-found'),
+    });
+    const s = await checkUpdate(ref, { runner });
+    expect(s.error).toBe('git-not-found');
+  });
+
+  it('propagates timeout error from runner', async () => {
+    const runner = makeRunner({
+      'fetch --quiet': new Error('timeout'),
+    });
+    const s = await checkUpdate(ref, { runner });
+    expect(s.error).toBe('timeout');
+  });
 });
 
 describe('pullRepo', () => {

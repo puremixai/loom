@@ -11,9 +11,9 @@ export function useSources() {
 
 export function useCheckSources() {
   return useMutation({
-    mutationFn: (input: { refs?: SourceRef[] } = {}) =>
+    mutationFn: () =>
       apiFetch<{ statuses: UpdateStatus[] }>('/api/sources/check', {
-        method: 'POST', body: JSON.stringify(input),
+        method: 'POST',
       }),
   });
 }

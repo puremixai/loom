@@ -67,12 +67,19 @@ const execFile = promisify(execFileCb);
 export interface GitRunResult { stdout: string; stderr: string }
 
 export async function runGit(args: string[], cwd: string, timeoutMs = 30_000): Promise<GitRunResult> {
-  const { stdout, stderr } = await execFile('git', args, {
-    cwd,
-    timeout: timeoutMs,
-    env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
-  });
-  return { stdout: stdout.toString(), stderr: stderr.toString() };
+  try {
+    const { stdout, stderr } = await execFile('git', args, {
+      cwd,
+      timeout: timeoutMs,
+      env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+    });
+    return { stdout: stdout.toString(), stderr: stderr.toString() };
+  } catch (err) {
+    const e = err as NodeJS.ErrnoException & { killed?: boolean; signal?: string };
+    if (e.code === 'ENOENT') throw new Error('git-not-found');
+    if (e.code === 'ETIMEDOUT' || e.killed === true || e.signal === 'SIGTERM') throw new Error('timeout');
+    throw err;
+  }
 }
 
 export interface CheckOptions {
