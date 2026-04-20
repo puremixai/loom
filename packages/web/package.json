@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.1.2",
+    "@radix-ui/react-tabs": "1.1.1",
     "@skill-manager/shared": "workspace:*",
     "react": "19.0.0",
     "react-dom": "19.0.0",
