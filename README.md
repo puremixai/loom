@@ -334,3 +334,13 @@ Report security issues privately by opening a GitHub security advisory rather th
 - Built with [Fastify](https://fastify.dev/), [React](https://react.dev/), [Vite](https://vite.dev/), [Tailwind CSS](https://tailwindcss.com/), [Radix UI](https://www.radix-ui.com/), [TanStack Query](https://tanstack.com/query), [Zod](https://zod.dev/)
 - UI inspired by [Vercel](https://vercel.com/)'s [Geist](https://vercel.com/font) design system
 - Designed for [Claude Code](https://claude.com/product/claude-code) by Anthropic
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=puremixai%2Floom&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=puremixai/loom&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=puremixai/loom&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=puremixai/loom&type=date&legend=top-left" />
+ </picture>
+</a>
