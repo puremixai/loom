@@ -6,6 +6,7 @@ import { projectsRoutes } from './routes/projects.js';
 import { aiRoutes } from './routes/ai.js';
 import { settingsRoutes } from './routes/settings.js';
 import { syncRoutes } from './routes/sync.js';
+import { platformRoutes } from './routes/platform.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
 
 export interface BuildOptions {
@@ -27,6 +28,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(aiRoutes({ db, cachePath: opts.cachePath }));
   await app.register(settingsRoutes({ db }));
   await app.register(syncRoutes({ db, cachePath: opts.cachePath }));
+  await app.register(platformRoutes);
 
   app.setErrorHandler((err, _req, reply) => {
     reply.status(err.statusCode ?? 500).send({
