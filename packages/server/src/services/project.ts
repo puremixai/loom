@@ -55,10 +55,11 @@ export class ProjectService {
     const idx = this.db.data.projects.findIndex(p => p.id === id);
     if (idx < 0) throw Object.assign(new Error('Not found'), { statusCode: 404, code: 'NOT_FOUND' });
     const current = this.db.data.projects[idx]!;
-    const next = { ...current, ...patch };
-    if (patch.path && !(await pathExistsDir(patch.path))) {
-      throw Object.assign(new Error(`Path does not exist: ${patch.path}`), { statusCode: 400, code: 'INVALID_PATH' });
+    const resolvedPath = patch.path ? resolve(patch.path) : undefined;
+    if (resolvedPath && !(await pathExistsDir(resolvedPath))) {
+      throw Object.assign(new Error(`Path does not exist: ${resolvedPath}`), { statusCode: 400, code: 'INVALID_PATH' });
     }
+    const next = { ...current, ...patch, ...(resolvedPath ? { path: resolvedPath } : {}) };
     this.db.data.projects[idx] = ProjectSchema.parse(next);
     await this.db.write();
     return this.db.data.projects[idx]!;

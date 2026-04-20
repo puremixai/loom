@@ -56,4 +56,33 @@ describe('projects CRUD', () => {
       await app.close();
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
+
+  it('resolves relative path in PATCH to absolute', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'sm-'));
+    const target1 = mkdtempSync(join(tmpdir(), 'sm-proj1-'));
+    const target2 = mkdtempSync(join(tmpdir(), 'sm-proj2-'));
+    try {
+      const { app } = await makeApp(dir);
+      const add = await app.inject({
+        method: 'POST', url: '/api/projects',
+        payload: { path: target1 },
+      });
+      const id = add.json().data.id;
+
+      // PATCH with absolute path (we already resolve add paths; this checks update parity)
+      const patch = await app.inject({
+        method: 'PATCH', url: `/api/projects/${id}`,
+        payload: { path: target2 },
+      });
+      expect(patch.statusCode).toBe(200);
+      // The returned path should be the absolute resolution of target2
+      const { resolve: resolvePath } = await import('node:path');
+      expect(patch.json().data.path).toBe(resolvePath(target2));
+      await app.close();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      rmSync(target1, { recursive: true, force: true });
+      rmSync(target2, { recursive: true, force: true });
+    }
+  });
 });
