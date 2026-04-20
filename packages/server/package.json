@@ -15,8 +15,10 @@
     "fastify": "5.0.0",
     "@fastify/static": "8.0.1",
     "@fastify/cors": "10.0.1",
+    "gray-matter": "4.0.3",
     "lowdb": "7.0.1",
     "open": "10.1.0",
+    "tiny-glob": "0.2.9",
     "zod": "3.23.8"
   },
   "devDependencies": {
