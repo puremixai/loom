@@ -20,7 +20,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
 
   await app.register(healthRoutes);
   await app.register(skillsRoutes({ db, cachePath: opts.cachePath }));
-  await app.register(projectsRoutes({ db }));
+  await app.register(projectsRoutes({ db, cachePath: opts.cachePath }));
 
   app.setErrorHandler((err, _req, reply) => {
     reply.status(err.statusCode ?? 500).send({
