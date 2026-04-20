@@ -7,6 +7,7 @@ import { projectsRoutes } from './routes/projects.js';
 import { aiRoutes } from './routes/ai.js';
 import { settingsRoutes } from './routes/settings.js';
 import { syncRoutes } from './routes/sync.js';
+import { sourcesRoutes } from './routes/sources.js';
 import { platformRoutes } from './routes/platform.js';
 import { userSkillsDirRoutes } from './routes/user-skills-dir.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
@@ -34,6 +35,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(settingsRoutes({ db }));
   await app.register(userSkillsDirRoutes({ db }));
   await app.register(syncRoutes({ db, cachePath: opts.cachePath }));
+  await app.register(sourcesRoutes({ db, cachePath: opts.cachePath }));
   await app.register(platformRoutes({ db }));
 
   app.setErrorHandler((err, _req, reply) => {
