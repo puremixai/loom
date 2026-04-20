@@ -1,0 +1,23 @@
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
+coverage/
+.vite/
+.turbo/
+.pnpm-store/
+
+# 本地开发产物
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Skill Manager 运行时
+*.tmp
+.skill-manager-staging-*/
