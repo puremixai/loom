@@ -57,3 +57,74 @@ export function formatPluginUpdateCmd(ref: SourceRef): string {
   if (ref.kind !== 'plugin' || !ref.pluginName) return '';
   return `claude plugins update ${ref.pluginName}`;
 }
+
+import { execFile as execFileCb } from 'node:child_process';
+import { promisify } from 'node:util';
+import type { UpdateStatus, PullResult } from '@loom/shared';
+
+const execFile = promisify(execFileCb);
+
+export interface GitRunResult { stdout: string; stderr: string }
+
+export async function runGit(args: string[], cwd: string, timeoutMs = 30_000): Promise<GitRunResult> {
+  const { stdout, stderr } = await execFile('git', args, {
+    cwd,
+    timeout: timeoutMs,
+    env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+  });
+  return { stdout: stdout.toString(), stderr: stderr.toString() };
+}
+
+export interface CheckOptions {
+  runner?: typeof runGit;
+  skipFetch?: boolean;
+}
+
+export async function checkUpdate(ref: SourceRef, opts: CheckOptions = {}): Promise<UpdateStatus> {
+  const runner = opts.runner ?? runGit;
+  const status: UpdateStatus = { ref, ahead: 0, behind: 0, dirty: false };
+  try {
+    if (!opts.skipFetch) {
+      await runner(['fetch', '--quiet'], ref.gitRoot);
+      status.lastFetchAt = new Date().toISOString();
+    }
+    try {
+      await runner(['rev-parse', '--abbrev-ref', '@{u}'], ref.gitRoot);
+    } catch {
+      return { ...status, error: 'no-remote' };
+    }
+    const ab = await runner(['rev-list', '--left-right', '--count', 'HEAD...@{u}'], ref.gitRoot);
+    const [aheadStr, behindStr] = ab.stdout.trim().split(/\s+/);
+    status.ahead = Number(aheadStr ?? 0);
+    status.behind = Number(behindStr ?? 0);
+    const statusOut = await runner(['status', '--porcelain'], ref.gitRoot);
+    status.dirty = statusOut.stdout.trim().length > 0;
+    if (status.behind > 0) {
+      const log = await runner(['log', '-1', '--pretty=format:%H%x00%s%x00%an%x00%cI', '@{u}'], ref.gitRoot);
+      const [sha, subject, author, date] = log.stdout.split('\x00');
+      if (sha && subject && author && date) {
+        status.lastCommit = { sha, subject, author, date };
+      }
+    }
+    return status;
+  } catch (err) {
+    return { ...status, error: (err as Error).message };
+  }
+}
+
+export interface PullOptions {
+  runner?: typeof runGit;
+}
+
+export async function pullRepo(ref: SourceRef, opts: PullOptions = {}): Promise<PullResult> {
+  if (ref.kind !== 'git-source') {
+    return { ok: false, output: '', error: 'Pull is only allowed for git-source refs. For plugins, use the claude CLI.' };
+  }
+  const runner = opts.runner ?? runGit;
+  try {
+    const { stdout, stderr } = await runner(['pull'], ref.gitRoot);
+    return { ok: true, output: `${stdout}\n${stderr}`.trim() };
+  } catch (err) {
+    return { ok: false, output: '', error: (err as Error).message };
+  }
+}
