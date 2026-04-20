@@ -1,4 +1,4 @@
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 

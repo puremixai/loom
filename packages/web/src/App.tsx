@@ -30,7 +30,7 @@ export default function App() {
           <div className="mx-auto flex h-14 max-w-content items-center justify-between px-6">
             <div className="flex items-center gap-8">
               <NavLink to="/" className="font-mono text-xs font-medium uppercase tracking-tight text-ink-900">
-                Skill Manager
+                Loom
               </NavLink>
               <nav className="flex items-center gap-5">
                 <NavItem to="/">Projects</NavItem>

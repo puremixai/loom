@@ -1,4 +1,4 @@
-import type { DiffPreview as DP, ManifestEntry, Skill } from '@skill-manager/shared';
+import type { DiffPreview as DP, ManifestEntry, Skill } from '@loom/shared';
 import { Badge } from '@/components/ui/badge';
 
 export function DiffPreview({ diff }: { diff: DP & { missing?: string[] } }) {

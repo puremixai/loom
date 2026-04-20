@@ -7,7 +7,7 @@ import {
   DEFAULT_SCAN_PATHS,
   CenterDbSchema,
   type CenterDb,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 
 const DEFAULTS: CenterDb = {
   projects: [],

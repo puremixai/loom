@@ -16,7 +16,7 @@ describe('rules service', () => {
         excludes: [],
         keywords: ['react'],
       });
-      const content = await readFile(join(dir, '.claude', 'skill-manager.rules.yaml'), 'utf8');
+      const content = await readFile(join(dir, '.claude', 'loom.rules.yaml'), 'utf8');
       expect(content).toContain('projectHint: React app');
       const parsed = await readRules(dir);
       expect(parsed?.includes).toEqual(['skill-a']);

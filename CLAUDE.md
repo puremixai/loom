@@ -19,10 +19,10 @@ pnpm dev
 pnpm build && pnpm start
 
 # per-package
-pnpm --filter @skill-manager/server dev       # backend only
-pnpm --filter @skill-manager/web dev          # frontend only
-pnpm --filter @skill-manager/server test      # 27 vitest cases
-pnpm --filter @skill-manager/server typecheck
+pnpm --filter @loom/server dev       # backend only
+pnpm --filter @loom/web dev          # frontend only
+pnpm --filter @loom/server test      # 27 vitest cases
+pnpm --filter @loom/server typecheck
 
 # everything
 pnpm -r run typecheck
@@ -35,18 +35,18 @@ pnpm monorepo with three workspace packages:
 
 | Package | Role |
 |---|---|
-| `@skill-manager/shared` | Zod schemas + constants. Single source of truth for types across server+web. |
-| `@skill-manager/server` | Fastify backend. Scanner, LinkService, RuleService, AiService, lowdb storage. |
-| `@skill-manager/web` | React SPA. Vite + TanStack Query + shadcn-style primitives. |
+| `@loom/shared` | Zod schemas + constants. Single source of truth for types across server+web. |
+| `@loom/server` | Fastify backend. Scanner, LinkService, RuleService, AiService, lowdb storage. |
+| `@loom/web` | React SPA. Vite + TanStack Query + shadcn-style primitives. |
 
-Full architecture in [docs/superpowers/specs/2026-04-20-skill-manager-design.md](docs/superpowers/specs/2026-04-20-skill-manager-design.md). Implementation history in [docs/superpowers/plans/2026-04-20-skill-manager-implementation.md](docs/superpowers/plans/2026-04-20-skill-manager-implementation.md).
+Full architecture in [docs/superpowers/specs/2026-04-20-loom-design.md](docs/superpowers/specs/2026-04-20-loom-design.md). Implementation history in [docs/superpowers/plans/2026-04-20-loom-implementation.md](docs/superpowers/plans/2026-04-20-loom-implementation.md).
 
 Data flows:
 
-- `~/.skill-manager/db.json` — central project registry + AI config (lowdb)
-- `~/.skill-manager/skills-cache.json` — scanner fingerprint cache
-- `<project>/.claude/skill-manager.json` — applied manifest (environment fact)
-- `<project>/.claude/skill-manager.rules.yaml` — rules (intent, committable)
+- `~/.loom/db.json` — central project registry + AI config (lowdb)
+- `~/.loom/skills-cache.json` — scanner fingerprint cache
+- `<project>/.claude/loom.json` — applied manifest (environment fact)
+- `<project>/.claude/loom.rules.yaml` — rules (intent, committable)
 
 ## Conventions
 
@@ -56,7 +56,7 @@ Data flows:
 - Mutating project operations use a per-project `Mutex` from [apply-helpers.ts](packages/server/src/services/apply-helpers.ts:9). Don't add another lock mechanism.
 - Errors use `Object.assign(new Error(...), { statusCode, code })` so the Fastify error handler propagates HTTP status correctly.
 - File writes go through `atomicWriteFile` in [fs-safe.ts](packages/server/src/utils/fs-safe.ts). Don't call `writeFile` directly for config or manifest.
-- Zod schemas in `@skill-manager/shared` — add to `schemas.ts` and re-export, never inline `z.object` in routes.
+- Zod schemas in `@loom/shared` — add to `schemas.ts` and re-export, never inline `z.object` in routes.
 
 ### Frontend
 
@@ -123,7 +123,7 @@ Geist comes from **Google Fonts CDN** (`@import url(...)` in [index.css](package
 
 ## When in doubt
 
-1. Read [docs/superpowers/specs/2026-04-20-skill-manager-design.md](docs/superpowers/specs/2026-04-20-skill-manager-design.md) — the architecture contract.
+1. Read [docs/superpowers/specs/2026-04-20-loom-design.md](docs/superpowers/specs/2026-04-20-loom-design.md) — the architecture contract.
 2. Read [docs/DESIGN.md](docs/DESIGN.md) — the Vercel/Geist visual system rules.
 3. `git log --oneline docs/` — the design decisions are commit-preserved.
 4. Ask the user before adding a new external dependency, changing the linking strategy, or introducing a new color outside the `ink-*` / workflow accent palette.

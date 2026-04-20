@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DiffPreview } from '@/components/DiffPreview';
-import type { RuleFile } from '@skill-manager/shared';
+import type { RuleFile } from '@loom/shared';
 
 export function AiRecommendPanel({ projectId, initialRules }: { projectId: string; initialRules: RuleFile | null }) {
   const [projectHint, setProjectHint] = useState(initialRules?.projectHint ?? '');

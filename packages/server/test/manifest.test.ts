@@ -16,8 +16,8 @@ describe('readManifest', () => {
     const dir = mkdtempSync(join(tmpdir(), 'sm-m-'));
     try {
       mkdirSync(join(dir, '.claude'));
-      writeFileSync(join(dir, '.claude', 'skill-manager.json'), JSON.stringify({
-        version: 1, tool: 'skill-manager',
+      writeFileSync(join(dir, '.claude', 'loom.json'), JSON.stringify({
+        version: 1, tool: 'loom',
         appliedAt: new Date().toISOString(), method: 'symlink', skills: [],
       }));
       const m = await readManifest(dir);

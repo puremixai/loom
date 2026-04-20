@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { AiRecommendRequestSchema, AiConfigSchema } from '@skill-manager/shared';
+import { AiRecommendRequestSchema, AiConfigSchema } from '@loom/shared';
 import { recommendSkills, testConnection } from '../services/ai.js';
 import { scanSkills } from '../services/scanner.js';
 import type { CenterDbStore } from '../storage/center-db.js';

@@ -6,7 +6,7 @@ import {
   PROJECT_CLAUDE_DIR,
   RuleFileSchema,
   type RuleFile,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 import { atomicWriteFile } from '../utils/fs-safe.js';
 
 export async function readRules(projectPath: string): Promise<RuleFile | null> {

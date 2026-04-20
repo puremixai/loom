@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { Project, Manifest, DiffPreview } from '@skill-manager/shared';
+import type { Project, Manifest, DiffPreview } from '@loom/shared';
 
 export type ProjectWithStatus = Project & { status: 'ok' | 'broken' };
 

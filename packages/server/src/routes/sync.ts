@@ -3,7 +3,7 @@ import { readRules } from '../services/rule.js';
 import { recommendSkills } from '../services/ai.js';
 import { scanSkills } from '../services/scanner.js';
 import { computeDiff } from '../services/apply-helpers.js';
-import { AiConfigSchema } from '@skill-manager/shared';
+import { AiConfigSchema } from '@loom/shared';
 import { ProjectService } from '../services/project.js';
 import type { CenterDbStore } from '../storage/center-db.js';
 

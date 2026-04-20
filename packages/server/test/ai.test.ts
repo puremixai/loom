@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { recommendSkills } from '../src/services/ai.js';
-import type { Skill, AiConfig } from '@skill-manager/shared';
+import type { Skill, AiConfig } from '@loom/shared';
 
 function makeSkill(id: string, name: string): Skill {
   return {

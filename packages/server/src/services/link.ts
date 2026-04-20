@@ -10,7 +10,7 @@ import {
   type Skill,
   type Manifest,
   type ManifestEntry,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 import { atomicWriteFile, exists, isSymlinkOrJunction, removePath } from '../utils/fs-safe.js';
 
 export type LinkMethod = 'symlink' | 'junction' | 'copy';
@@ -75,7 +75,7 @@ export async function applySkills(input: ApplyInput): Promise<ApplyResult> {
     // Removals first (move to backup location so rollback can restore)
     for (const entry of toRemove) {
       const abs = join(input.projectPath, entry.linkedAs);
-      const backup = `${abs}.sm-backup-${Date.now()}`;
+      const backup = `${abs}.loom-backup-${Date.now()}`;
       if (await exists(abs)) {
         if (await isSymlinkOrJunction(abs)) {
           await removePath(abs);
@@ -96,7 +96,7 @@ export async function applySkills(input: ApplyInput): Promise<ApplyResult> {
         if (managed) {
           await removePath(target);
         } else {
-          const err = new Error(`Target exists and is not managed by skill-manager: ${target}`);
+          const err = new Error(`Target exists and is not managed by loom: ${target}`);
           (err as any).code = 'CONFLICT';
           (err as any).statusCode = 409;
           throw err;
@@ -117,7 +117,7 @@ export async function applySkills(input: ApplyInput): Promise<ApplyResult> {
     }));
     const manifest: Manifest = ManifestSchema.parse({
       version: 1,
-      tool: 'skill-manager',
+      tool: 'loom',
       appliedAt: new Date().toISOString(),
       method: chosenMethod,
       skills: finalEntries,
@@ -185,7 +185,7 @@ export async function unapplySkills(opts: {
   } else {
     const newManifest: Manifest = ManifestSchema.parse({
       version: 1,
-      tool: 'skill-manager',
+      tool: 'loom',
       appliedAt: new Date().toISOString(),
       method: opts.manifest.method,
       skills: remaining,

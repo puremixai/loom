@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, symlink, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { IS_WINDOWS } from '@skill-manager/shared';
+import { IS_WINDOWS } from '@loom/shared';
 import { copy } from 'fs-extra';
 
 export type ProbeResult = 'symlink' | 'junction' | 'copy';

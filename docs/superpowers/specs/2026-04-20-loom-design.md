@@ -1,11 +1,11 @@
 ---
-title: Skill Manager — 本地多项目 Claude 技能管理工具
+title: Loom — 本地多项目 Claude 技能管理工具
 date: 2026-04-20
 status: approved
 authors: [user, claude-opus-4-7]
 ---
 
-# Skill Manager 设计文档
+# Loom 设计文档
 
 ## 1. 背景与目标
 
@@ -59,7 +59,7 @@ authors: [user, claude-opus-4-7]
                  │
       ┌──────────┼───────────────────┐
       ▼          ▼                   ▼
-  ~/.claude/  ~/.skill-manager/   <project>/.claude/
+  ~/.claude/  ~/.loom/   <project>/.claude/
   （只读源）   （中心数据）       （写入产物）
 ```
 
@@ -90,7 +90,7 @@ authors: [user, claude-opus-4-7]
 ## 3. 仓库布局
 
 ```
-skill-manager/
+loom/
 ├─ package.json
 ├─ pnpm-workspace.yaml
 ├─ tsconfig.base.json
@@ -124,7 +124,7 @@ skill-manager/
 │  │  │  │  ├─ rule.ts
 │  │  │  │  └─ ai.ts
 │  │  │  ├─ storage/
-│  │  │  │  └─ center-db.ts   # lowdb 封装 ~/.skill-manager/db.json
+│  │  │  │  └─ center-db.ts   # lowdb 封装 ~/.loom/db.json
 │  │  │  └─ utils/
 │  │  │     ├─ fs-safe.ts     # 原子写、临时目录 rename
 │  │  │     ├─ platform.ts    # Windows/POSIX 差异
@@ -193,7 +193,7 @@ const ProjectSchema = z.object({
 });
 type Project = z.infer<typeof ProjectSchema>;
 
-// ===== 规则文件（<project>/.claude/skill-manager.rules.yaml） =====
+// ===== 规则文件（<project>/.claude/loom.rules.yaml） =====
 const RuleFileSchema = z.object({
   version: z.literal(1),
   projectHint: z.string(),                   // 一句话项目描述（AI 主输入）
@@ -205,10 +205,10 @@ const RuleFileSchema = z.object({
 });
 type RuleFile = z.infer<typeof RuleFileSchema>;
 
-// ===== 应用产物清单（<project>/.claude/skill-manager.json） =====
+// ===== 应用产物清单（<project>/.claude/loom.json） =====
 const ManifestSchema = z.object({
   version: z.literal(1),
-  tool: z.literal('skill-manager'),
+  tool: z.literal('loom'),
   appliedAt: z.string().datetime(),
   method: z.enum(['symlink', 'junction', 'copy']),
   skills: z.array(z.object({
@@ -220,7 +220,7 @@ const ManifestSchema = z.object({
 });
 type Manifest = z.infer<typeof ManifestSchema>;
 
-// ===== 中心数据（~/.skill-manager/db.json） =====
+// ===== 中心数据（~/.loom/db.json） =====
 const CenterDbSchema = z.object({
   projects: z.array(ProjectSchema),
   scanPaths: z.array(z.string()),            // 默认三条，可扩展
@@ -240,10 +240,10 @@ const CenterDbSchema = z.object({
 
 | 文件 | 位置 | 是否入 git | 含义 |
 |---|---|---|---|
-| `skill-manager.rules.yaml` | `<project>/.claude/` | **建议入** | 规则 = 意图，团队共享 |
-| `skill-manager.json` | `<project>/.claude/` | 建议 ignore | manifest = 环境事实快照 |
-| `db.json` | `~/.skill-manager/` | N/A | 中心注册表（不属于任何项目） |
-| `skills-cache.json` | `~/.skill-manager/` | N/A | 扫描结果缓存 |
+| `loom.rules.yaml` | `<project>/.claude/` | **建议入** | 规则 = 意图，团队共享 |
+| `loom.json` | `<project>/.claude/` | 建议 ignore | manifest = 环境事实快照 |
+| `db.json` | `~/.loom/` | N/A | 中心注册表（不属于任何项目） |
+| `skills-cache.json` | `~/.loom/` | N/A | 扫描结果缓存 |
 
 ---
 
@@ -314,7 +314,7 @@ tryLink(source, target):
 
 ### 5.4 RuleService
 
-**职责**：读写 `<P>/.claude/skill-manager.rules.yaml`，zod 校验。
+**职责**：读写 `<P>/.claude/loom.rules.yaml`，zod 校验。
 
 - `readRules(projectPath)`：不存在返回 `null`；存在但校验失败抛结构化错误（字段 + 路径）
 - `writeRules(projectPath, rules)`：`.claude/` 不存在则创建；使用 `js-yaml` 序列化 + 原子写（临时文件 + rename）
@@ -491,7 +491,7 @@ AI 指引：{aiGuidance || '无'}
 | rules.yaml 校验失败 | 返回字段级 + 行号错误；不覆盖服务端状态 |
 | 项目路径失效 | 状态标「损坏」，写入类操作禁用，提供「重新定位 / 移除」 |
 | 并发 apply 同一项目 | per-project async mutex |
-| `~/.skill-manager/` 首次启动不存在 | 自动创建并写默认 `db.json` |
+| `~/.loom/` 首次启动不存在 | 自动创建并写默认 `db.json` |
 | AI API key 缺失且 apiKeyEnv 未设 | AI 标签页禁用 + 提示去设置页配置 |
 
 ---
@@ -534,7 +534,7 @@ AI 指引：{aiGuidance || '无'}
 - **仅绑定 `127.0.0.1`**：Fastify 启动时显式 `host: '127.0.0.1'`，拒绝局域网访问
 - **无鉴权**：基于单用户本地使用假设
 - **API key 存储**：优先 `apiKeyEnv`（环境变量），明文落盘的 `apiKey` 在 UI 多处警示
-- **写入范围**：LinkService 只写 `<project>/.claude/` 内部；RuleService / ProjectService 只写 `<project>/.claude/` 和 `~/.skill-manager/`
+- **写入范围**：LinkService 只写 `<project>/.claude/` 内部；RuleService / ProjectService 只写 `<project>/.claude/` 和 `~/.loom/`
 - **unapply 的安全底线**：永远只删 manifest 登记过的路径，不做递归删除
 
 ---
@@ -549,7 +549,7 @@ AI 指引：{aiGuidance || '无'}
 | 插件更新后缓存陈旧 | fingerprint 基于 mtime+size，插件同步时机器 mtime 会变，缓存自然失效；UI「重新扫描」按钮可强制刷新 |
 | AI 返回 token 过多超限 | 候选技能数量 90+，单条约 200 字符，user prompt 约 20KB。对常见模型上下文（128k+）无压力；若未来增长再做分批 |
 | AI 错误选择 includes 中不存在的 id | 后端强制校验 + 补齐 includes 条目（即使 AI 遗漏） |
-| Claude Code 对 `<project>/.claude/skills/` 的识别行为变化 | 产物格式（symlink 指向真实 SKILL.md 所在目录）与手动放置技能完全一致；若 Claude Code 更改 discovery 规则，Skill Manager 只需调整输出路径 |
+| Claude Code 对 `<project>/.claude/skills/` 的识别行为变化 | 产物格式（symlink 指向真实 SKILL.md 所在目录）与手动放置技能完全一致；若 Claude Code 更改 discovery 规则，Loom 只需调整输出路径 |
 
 ### 10.2 待定事项（可在 writing-plans 阶段进一步细化）
 

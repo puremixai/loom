@@ -18,9 +18,9 @@ coverage/
 !.vscode/extensions.json
 .idea/
 
-# Skill Manager 运行时
+# Loom 运行时
 *.tmp
-.skill-manager-staging-*/
+.loom-staging-*/
 
 # Claude Code session artifacts
 .claude/

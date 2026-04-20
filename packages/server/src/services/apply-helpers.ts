@@ -3,7 +3,7 @@ import { scanSkills } from './scanner.js';
 import { readManifest } from './manifest.js';
 import { applySkills, unapplySkills } from './link.js';
 import type { CenterDbStore } from '../storage/center-db.js';
-import type { Skill, DiffPreview, ManifestEntry } from '@skill-manager/shared';
+import type { Skill, DiffPreview, ManifestEntry } from '@loom/shared';
 
 const locks = new Map<string, Mutex>();
 

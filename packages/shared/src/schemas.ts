@@ -44,7 +44,7 @@ export type ManifestEntry = z.infer<typeof ManifestEntrySchema>;
 
 export const ManifestSchema = z.object({
   version: z.literal(1),
-  tool: z.literal('skill-manager'),
+  tool: z.literal('loom'),
   appliedAt: z.string().datetime(),
   method: z.enum(['symlink', 'junction', 'copy']),
   skills: z.array(ManifestEntrySchema),

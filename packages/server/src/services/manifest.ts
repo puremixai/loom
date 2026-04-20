@@ -5,7 +5,7 @@ import {
   PROJECT_CLAUDE_DIR,
   ManifestSchema,
   type Manifest,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 
 export async function readManifest(projectPath: string): Promise<Manifest | null> {
   const file = join(projectPath, PROJECT_CLAUDE_DIR, MANIFEST_FILENAME);

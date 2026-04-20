@@ -6,7 +6,7 @@ import { useApply, useDiffPreview } from '@/api/projects';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { DiffPreview } from '@/components/DiffPreview';
-import type { RuleFile, Skill, DiffPreview as DP } from '@skill-manager/shared';
+import type { RuleFile, Skill, DiffPreview as DP } from '@loom/shared';
 
 interface SyncResponse {
   picks: Array<{ skill: Skill; reason: string }>;

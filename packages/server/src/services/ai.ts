@@ -1,4 +1,4 @@
-import type { AiConfig, Skill } from '@skill-manager/shared';
+import type { AiConfig, Skill } from '@loom/shared';
 
 export interface RecommendInput {
   projectHint: string;

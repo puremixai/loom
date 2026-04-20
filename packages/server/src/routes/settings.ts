@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { AiConfigSchema } from '@skill-manager/shared';
+import { AiConfigSchema } from '@loom/shared';
 import type { CenterDbStore } from '../storage/center-db.js';
 
 const SettingsBody = z.object({

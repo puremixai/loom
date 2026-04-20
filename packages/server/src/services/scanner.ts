@@ -3,7 +3,7 @@ import { dirname, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import glob from 'tiny-glob';
 import matter from 'gray-matter';
-import { SKILLS_CACHE_FILE, type Skill } from '@skill-manager/shared';
+import { SKILLS_CACHE_FILE, type Skill } from '@loom/shared';
 import { computeFingerprint } from '../utils/fingerprint.js';
 import { atomicWriteFile } from '../utils/fs-safe.js';
 

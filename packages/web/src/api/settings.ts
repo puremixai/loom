@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { AiConfig } from '@skill-manager/shared';
+import type { AiConfig } from '@loom/shared';
 
 interface SettingsResponse {
   scanPaths: string[];

@@ -96,7 +96,7 @@ export function SettingsPage() {
           </label>
 
           <label className="block">
-            <Label hint="Fallback — stored in plaintext in ~/.skill-manager/db.json. Prefer env var.">API key</Label>
+            <Label hint="Fallback — stored in plaintext in ~/.loom/db.json. Prefer env var.">API key</Label>
             <div className="flex gap-2">
               <Input
                 type={showKey ? 'text' : 'password'}

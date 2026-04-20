@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { stat } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
-import { ProjectSchema, type Project } from '@skill-manager/shared';
+import { ProjectSchema, type Project } from '@loom/shared';
 import type { CenterDbStore } from '../storage/center-db.js';
 
 export interface ProjectStatus extends Project {

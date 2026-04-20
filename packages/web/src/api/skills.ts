@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 interface SkillsResponse { skills: Skill[]; warnings: string[] }
 

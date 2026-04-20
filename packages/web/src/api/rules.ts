@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { RuleFile } from '@skill-manager/shared';
+import type { RuleFile } from '@loom/shared';
 
 export function useRules(projectId: string | undefined) {
   return useQuery({

@@ -4,7 +4,7 @@ import { stat, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { applySkills, unapplySkills } from '../src/services/link.js';
-import type { Skill, Manifest } from '@skill-manager/shared';
+import type { Skill, Manifest } from '@loom/shared';
 
 function makeSkill(id: string, name: string, skillDir: string): Skill {
   return {
@@ -47,7 +47,7 @@ describe('link engine', () => {
     const linked = join(projectPath, '.claude', 'skills', 'alpha');
     const linkedStat = await stat(linked);
     expect(linkedStat.isDirectory()).toBe(true);
-    const readManifest = JSON.parse(await readFile(join(projectPath, '.claude', 'skill-manager.json'), 'utf8')) as Manifest;
+    const readManifest = JSON.parse(await readFile(join(projectPath, '.claude', 'loom.json'), 'utf8')) as Manifest;
     expect(readManifest.skills[0]!.id).toBe('id1');
   });
 
@@ -130,7 +130,7 @@ describe('link engine', () => {
 
     const fakeManifest: Manifest = {
       version: 1,
-      tool: 'skill-manager',
+      tool: 'loom',
       appliedAt: new Date().toISOString(),
       method: 'copy',
       skills: [{ id: 'id-b', name: 'beta', sourceDir: skillDir, linkedAs: '.claude/skills/beta' }],

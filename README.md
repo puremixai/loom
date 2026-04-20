@@ -1,4 +1,4 @@
-# Skill Manager
+# Loom
 
 Local multi-project manager for Claude Code skills. Browse installed skills from `~/.claude/`, apply per-project subsets via symlinks/junctions, and ask an AI to recommend skills for each project based on a rules file.
 
@@ -26,17 +26,17 @@ pnpm dev
 
 ## Data locations
 
-- Central config / project registry: `~/.skill-manager/db.json`
-- Scanner cache: `~/.skill-manager/skills-cache.json`
-- Per-project applied manifest: `<project>/.claude/skill-manager.json`
-- Per-project rules (committable): `<project>/.claude/skill-manager.rules.yaml`
+- Central config / project registry: `~/.loom/db.json`
+- Scanner cache: `~/.loom/skills-cache.json`
+- Per-project applied manifest: `<project>/.claude/loom.json`
+- Per-project rules (committable): `<project>/.claude/loom.rules.yaml`
 
 ## Workflow
 
 1. **Add a project** on the Projects page (absolute path).
 2. **Manual mode**: open the project, switch to "Add skills", select skills, preview and apply.
 3. **AI mode**: fill project hint + rules, click "Generate recommendations", adjust picks, save rules + apply.
-4. **Rule-driven sync**: later, edit `skill-manager.rules.yaml` and click "Sync by rules" to regenerate.
+4. **Rule-driven sync**: later, edit `loom.rules.yaml` and click "Sync by rules" to regenerate.
 
 ## Windows
 

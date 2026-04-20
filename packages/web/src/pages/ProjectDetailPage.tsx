@@ -12,7 +12,7 @@ import { RulesEditor } from '@/components/RulesEditor';
 import { useRules } from '@/api/rules';
 import { useSkills } from '@/api/skills';
 import { useProjects, useManifest, useDiffPreview, useApply, useUnapply } from '@/api/projects';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 function group(skills: Skill[]): Record<string, Skill[]> {
   const out: Record<string, Skill[]> = {};

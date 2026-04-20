@@ -3,7 +3,7 @@ import { useSkills } from '@/api/skills';
 import { SkillCard } from '@/components/SkillCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 function group(skills: Skill[]): Record<string, Skill[]> {
   const out: Record<string, Skill[]> = {};

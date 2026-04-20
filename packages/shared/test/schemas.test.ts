@@ -33,10 +33,10 @@ describe('schemas', () => {
     expect(db.ai).toEqual({});
   });
 
-  it('manifest requires version=1 and tool=skill-manager', () => {
+  it('manifest requires version=1 and tool=loom', () => {
     expect(() =>
       ManifestSchema.parse({
-        version: 2, tool: 'skill-manager',
+        version: 2, tool: 'loom',
         appliedAt: new Date().toISOString(), method: 'symlink', skills: [],
       })
     ).toThrow();

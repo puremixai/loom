@@ -5,7 +5,7 @@ import type { CenterDbStore } from '../storage/center-db.js';
 import { applySkills, unapplySkills, computeDiff, resolveSkills, getLock } from '../services/apply-helpers.js';
 import { readManifest } from '../services/manifest.js';
 import { readRules, writeRules } from '../services/rule.js';
-import { RuleFileSchema } from '@skill-manager/shared';
+import { RuleFileSchema } from '@loom/shared';
 
 const AddBody = z.object({ path: z.string().min(1), name: z.string().optional(), notes: z.string().optional() });
 const PatchBody = z.object({ name: z.string().optional(), path: z.string().optional(), notes: z.string().optional() });

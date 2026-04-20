@@ -1,14 +1,14 @@
-# Skill Manager Implementation Plan
+# Loom Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a local Node + React web app that manages Claude skills per-project via symlinks/junctions and AI-assisted filtering.
 
-**Architecture:** pnpm monorepo with `shared` (zod schemas + types), `server` (Fastify backend), `web` (Vite + React + shadcn SPA). Server scans `~/.claude/` skill sources, creates per-project symlinks in `<project>/.claude/skills/`, persists state in `~/.skill-manager/db.json` (lowdb) and project-local `skill-manager.json` + `skill-manager.rules.yaml`.
+**Architecture:** pnpm monorepo with `shared` (zod schemas + types), `server` (Fastify backend), `web` (Vite + React + shadcn SPA). Server scans `~/.claude/` skill sources, creates per-project symlinks in `<project>/.claude/skills/`, persists state in `~/.loom/db.json` (lowdb) and project-local `loom.json` + `loom.rules.yaml`.
 
 **Tech Stack:** TypeScript 5, pnpm workspaces, Fastify 5, React 19, Vite 6, Tailwind + shadcn/ui, TanStack Query, zod, lowdb, gray-matter, js-yaml, vitest + msw.
 
-**Spec reference:** `docs/superpowers/specs/2026-04-20-skill-manager-design.md`
+**Spec reference:** `docs/superpowers/specs/2026-04-20-loom-design.md`
 
 **Phases (each ends on a green commit):**
 - **A.** Foundation — monorepo, shared schemas, server skeleton, storage
@@ -35,7 +35,7 @@
 
 ```json
 {
-  "name": "skill-manager",
+  "name": "loom",
   "version": "0.1.0",
   "private": true,
   "description": "Local multi-project Claude skill management app",
@@ -44,7 +44,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm -r run build",
-    "start": "pnpm --filter @skill-manager/server start",
+    "start": "pnpm --filter @loom/server start",
     "test": "pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm -r run lint"
@@ -100,7 +100,7 @@ trim_trailing_whitespace = true
 - [ ] **Step 5: Install and verify**
 
 ```bash
-cd D:/VibeProjects/skill-manager
+cd D:/VibeProjects/loom
 pnpm install
 pnpm typecheck
 ```
@@ -129,7 +129,7 @@ git commit -m "chore: initialize pnpm monorepo skeleton"
 
 ```json
 {
-  "name": "@skill-manager/shared",
+  "name": "@loom/shared",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -167,10 +167,10 @@ git commit -m "chore: initialize pnpm monorepo skeleton"
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 
-export const APP_NAME = 'skill-manager';
+export const APP_NAME = 'loom';
 export const DEFAULT_PORT = 4178;
 
-export const CENTER_DIR = join(homedir(), '.skill-manager');
+export const CENTER_DIR = join(homedir(), '.loom');
 export const CENTER_DB_FILE = join(CENTER_DIR, 'db.json');
 export const SKILLS_CACHE_FILE = join(CENTER_DIR, 'skills-cache.json');
 
@@ -182,8 +182,8 @@ export const DEFAULT_SCAN_PATHS = [
 
 export const PROJECT_CLAUDE_DIR = '.claude';
 export const PROJECT_SKILLS_DIR = '.claude/skills';
-export const MANIFEST_FILENAME = 'skill-manager.json';
-export const RULES_FILENAME = 'skill-manager.rules.yaml';
+export const MANIFEST_FILENAME = 'loom.json';
+export const RULES_FILENAME = 'loom.rules.yaml';
 
 export const IS_WINDOWS = platform() === 'win32';
 ```
@@ -237,7 +237,7 @@ export type ManifestEntry = z.infer<typeof ManifestEntrySchema>;
 
 export const ManifestSchema = z.object({
   version: z.literal(1),
-  tool: z.literal('skill-manager'),
+  tool: z.literal('loom'),
   appliedAt: z.string().datetime(),
   method: z.enum(['symlink', 'junction', 'copy']),
   skills: z.array(ManifestEntrySchema),
@@ -338,10 +338,10 @@ describe('schemas', () => {
     expect(db.ai).toEqual({});
   });
 
-  it('manifest requires version=1 and tool=skill-manager', () => {
+  it('manifest requires version=1 and tool=loom', () => {
     expect(() =>
       ManifestSchema.parse({
-        version: 2, tool: 'skill-manager',
+        version: 2, tool: 'loom',
         appliedAt: new Date().toISOString(), method: 'symlink', skills: [],
       })
     ).toThrow();
@@ -352,8 +352,8 @@ describe('schemas', () => {
 - [ ] **Step 7: Run test (expect fail: package not installed)**
 
 ```bash
-pnpm --filter @skill-manager/shared install
-pnpm --filter @skill-manager/shared test
+pnpm --filter @loom/shared install
+pnpm --filter @loom/shared test
 ```
 Expected: FAIL initially until install resolves zod; after install tests should PASS.
 
@@ -361,7 +361,7 @@ Expected: FAIL initially until install resolves zod; after install tests should 
 
 ```bash
 pnpm install
-pnpm --filter @skill-manager/shared test
+pnpm --filter @loom/shared test
 ```
 Expected: all 4 tests PASS.
 
@@ -388,7 +388,7 @@ git commit -m "feat(shared): add zod schemas for skill, project, manifest, ai co
 
 ```json
 {
-  "name": "@skill-manager/server",
+  "name": "@loom/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -400,7 +400,7 @@ git commit -m "feat(shared): add zod schemas for skill, project, manifest, ai co
     "test": "vitest run"
   },
   "dependencies": {
-    "@skill-manager/shared": "workspace:*",
+    "@loom/shared": "workspace:*",
     "fastify": "5.0.0",
     "@fastify/static": "8.0.1",
     "@fastify/cors": "10.0.1",
@@ -476,7 +476,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
 
 ```ts
 import { buildApp } from './app.js';
-import { DEFAULT_PORT } from '@skill-manager/shared';
+import { DEFAULT_PORT } from '@loom/shared';
 import open from 'open';
 
 const port = Number(process.env.PORT ?? DEFAULT_PORT);
@@ -485,7 +485,7 @@ const host = '127.0.0.1';
 const app = await buildApp({ logger: true });
 
 await app.listen({ port, host });
-console.log(`Skill Manager running at http://${host}:${port}`);
+console.log(`Loom running at http://${host}:${port}`);
 
 if (process.env.NO_OPEN !== '1') {
   await open(`http://${host}:${port}`);
@@ -518,7 +518,7 @@ describe('GET /api/health', () => {
 
 ```bash
 pnpm install
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 1 test PASS.
 
@@ -570,7 +570,7 @@ import {
   DEFAULT_SCAN_PATHS,
   CenterDbSchema,
   type CenterDb,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 
 const DEFAULTS: CenterDb = {
   projects: [],
@@ -634,7 +634,7 @@ describe('center db', () => {
 - [ ] **Step 4: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 3 tests total (1 from Task 3 + 2 new) all PASS.
 
@@ -688,7 +688,7 @@ import { dirname, relative, sep, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import glob from 'tiny-glob';
 import matter from 'gray-matter';
-import { SKILLS_CACHE_FILE, CENTER_DIR, type Skill } from '@skill-manager/shared';
+import { SKILLS_CACHE_FILE, CENTER_DIR, type Skill } from '@loom/shared';
 import { computeFingerprint } from '../utils/fingerprint.js';
 
 type SourceKind = 'user' | 'custom' | 'plugin';
@@ -872,7 +872,7 @@ describe('scanSkills', () => {
 
 ```bash
 pnpm install
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 3 new scanner tests PASS.
 
@@ -1018,7 +1018,7 @@ describe('GET /api/skills', () => {
 - [ ] **Step 4: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: all existing + 2 new PASS.
 
@@ -1048,7 +1048,7 @@ git commit -m "feat(server): add GET /api/skills and /api/skills/:id endpoints"
 
 ```json
 {
-  "name": "@skill-manager/web",
+  "name": "@loom/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -1060,7 +1060,7 @@ git commit -m "feat(server): add GET /api/skills and /api/skills/:id endpoints"
     "test": "vitest run"
   },
   "dependencies": {
-    "@skill-manager/shared": "workspace:*",
+    "@loom/shared": "workspace:*",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router-dom": "6.27.0",
@@ -1156,7 +1156,7 @@ export default {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skill Manager</title>
+    <title>Loom</title>
   </head>
   <body>
     <div id="root"></div>
@@ -1182,7 +1182,7 @@ body { @apply bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutr
 export default function App() {
   return (
     <div className="min-h-screen p-8">
-      <h1 className="text-2xl font-bold">Skill Manager</h1>
+      <h1 className="text-2xl font-bold">Loom</h1>
       <p className="mt-2 text-sm text-neutral-500">Web UI boot OK.</p>
     </div>
   );
@@ -1215,9 +1215,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 ```bash
 pnpm install
-pnpm --filter @skill-manager/web dev
+pnpm --filter @loom/web dev
 ```
-Expected: Vite dev server starts on 5173; open browser → see "Skill Manager" + "Web UI boot OK." Kill with Ctrl+C.
+Expected: Vite dev server starts on 5173; open browser → see "Loom" + "Web UI boot OK." Kill with Ctrl+C.
 
 - [ ] **Step 11: Commit**
 
@@ -1396,7 +1396,7 @@ Input.displayName = 'Input';
 - [ ] **Step 7: Smoke test**
 
 ```bash
-pnpm --filter @skill-manager/web typecheck
+pnpm --filter @loom/web typecheck
 ```
 Expected: 0 errors.
 
@@ -1441,7 +1441,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 ```ts
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 interface SkillsResponse { skills: Skill[]; warnings: string[] }
 
@@ -1456,7 +1456,7 @@ export function useSkills(refresh = false) {
 - [ ] **Step 3: Create `packages/web/src/components/SkillCard.tsx`**
 
 ```tsx
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -1495,7 +1495,7 @@ import { useSkills } from '@/api/skills';
 import { SkillCard } from '@/components/SkillCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 function group(skills: Skill[]): Record<string, Skill[]> {
   const out: Record<string, Skill[]> = {};
@@ -1561,7 +1561,7 @@ export default function App() {
       <div className="min-h-screen">
         <header className="border-b bg-white px-6 py-3 dark:border-neutral-800 dark:bg-neutral-900">
           <nav className="flex items-center gap-6">
-            <Link to="/" className="text-lg font-bold">Skill Manager</Link>
+            <Link to="/" className="text-lg font-bold">Loom</Link>
             <Link to="/" className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-300">Projects</Link>
             <Link to="/skills" className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-300">Skills</Link>
             <Link to="/settings" className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-300">Settings</Link>
@@ -1584,11 +1584,11 @@ export default function App() {
 
 Terminal 1:
 ```bash
-NO_OPEN=1 pnpm --filter @skill-manager/server start
+NO_OPEN=1 pnpm --filter @loom/server start
 ```
 Terminal 2:
 ```bash
-pnpm --filter @skill-manager/web dev
+pnpm --filter @loom/web dev
 ```
 Open `http://localhost:5173/skills`. Expected: list of skills grouped by source.
 
@@ -1617,7 +1617,7 @@ git commit -m "feat(web): add skills browse page with search and grouping"
 import { randomUUID } from 'node:crypto';
 import { access, stat } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
-import { ProjectSchema, type Project } from '@skill-manager/shared';
+import { ProjectSchema, type Project } from '@loom/shared';
 import type { CenterDbStore } from '../storage/center-db.js';
 
 export interface ProjectStatus extends Project {
@@ -1809,7 +1809,7 @@ describe('projects CRUD', () => {
 - [ ] **Step 5: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: all previous + 2 new tests PASS.
 
@@ -1893,7 +1893,7 @@ import {
   type Skill,
   type Manifest,
   type ManifestEntry,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 import { atomicWriteFile, exists, isSymlinkOrJunction, removePath } from '../utils/fs-safe.js';
 
 export type LinkMethod = 'symlink' | 'junction' | 'copy';
@@ -1958,7 +1958,7 @@ export async function applySkills(input: ApplyInput): Promise<ApplyResult> {
     // Removals first (move to backup location so rollback can restore)
     for (const entry of toRemove) {
       const abs = join(input.projectPath, entry.linkedAs);
-      const backup = `${abs}.sm-backup-${Date.now()}`;
+      const backup = `${abs}.loom-backup-${Date.now()}`;
       if (await exists(abs)) {
         if (await isSymlinkOrJunction(abs)) {
           await removePath(abs);
@@ -1979,7 +1979,7 @@ export async function applySkills(input: ApplyInput): Promise<ApplyResult> {
         if (managed) {
           await removePath(target);
         } else {
-          const err = new Error(`Target exists and is not managed by skill-manager: ${target}`);
+          const err = new Error(`Target exists and is not managed by loom: ${target}`);
           (err as any).code = 'CONFLICT';
           (err as any).statusCode = 409;
           throw err;
@@ -2000,7 +2000,7 @@ export async function applySkills(input: ApplyInput): Promise<ApplyResult> {
     }));
     const manifest: Manifest = ManifestSchema.parse({
       version: 1,
-      tool: 'skill-manager',
+      tool: 'loom',
       appliedAt: new Date().toISOString(),
       method: chosenMethod,
       skills: finalEntries,
@@ -2055,7 +2055,7 @@ export async function unapplySkills(opts: {
   } else {
     const newManifest: Manifest = ManifestSchema.parse({
       version: 1,
-      tool: 'skill-manager',
+      tool: 'loom',
       appliedAt: new Date().toISOString(),
       method: opts.manifest.method,
       skills: remaining,
@@ -2080,7 +2080,7 @@ import { stat, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { applySkills, unapplySkills } from '../src/services/link.js';
-import type { Skill, Manifest } from '@skill-manager/shared';
+import type { Skill, Manifest } from '@loom/shared';
 
 function makeSkill(id: string, name: string, skillDir: string): Skill {
   return {
@@ -2123,7 +2123,7 @@ describe('link engine', () => {
     const linked = join(projectPath, '.claude', 'skills', 'alpha');
     const linkedStat = await stat(linked);
     expect(linkedStat.isDirectory()).toBe(true);
-    const readManifest = JSON.parse(await readFile(join(projectPath, '.claude', 'skill-manager.json'), 'utf8')) as Manifest;
+    const readManifest = JSON.parse(await readFile(join(projectPath, '.claude', 'loom.json'), 'utf8')) as Manifest;
     expect(readManifest.skills[0]!.id).toBe('id1');
   });
 
@@ -2166,7 +2166,7 @@ describe('link engine', () => {
 
 ```bash
 pnpm install
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 3 new link tests PASS.
 
@@ -2196,7 +2196,7 @@ import {
   PROJECT_CLAUDE_DIR,
   ManifestSchema,
   type Manifest,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 
 export async function readManifest(projectPath: string): Promise<Manifest | null> {
   const file = join(projectPath, PROJECT_CLAUDE_DIR, MANIFEST_FILENAME);
@@ -2244,8 +2244,8 @@ describe('readManifest', () => {
     const dir = mkdtempSync(join(tmpdir(), 'sm-m-'));
     try {
       mkdirSync(join(dir, '.claude'));
-      writeFileSync(join(dir, '.claude', 'skill-manager.json'), JSON.stringify({
-        version: 1, tool: 'skill-manager',
+      writeFileSync(join(dir, '.claude', 'loom.json'), JSON.stringify({
+        version: 1, tool: 'loom',
         appliedAt: new Date().toISOString(), method: 'symlink', skills: [],
       }));
       const m = await readManifest(dir);
@@ -2258,7 +2258,7 @@ describe('readManifest', () => {
 - [ ] **Step 4: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 2 new tests PASS.
 
@@ -2297,7 +2297,7 @@ import { scanSkills } from './scanner.js';
 import { readManifest } from './manifest.js';
 import { applySkills, unapplySkills } from './link.js';
 import type { CenterDbStore } from '../storage/center-db.js';
-import type { Skill, DiffPreview, ManifestEntry } from '@skill-manager/shared';
+import type { Skill, DiffPreview, ManifestEntry } from '@loom/shared';
 
 const locks = new Map<string, Mutex>();
 
@@ -2503,7 +2503,7 @@ await app.register(projectsRoutes({ db, cachePath: opts.cachePath }));
 - [ ] **Step 6: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: all tests PASS.
 
@@ -2529,7 +2529,7 @@ git commit -m "feat(server): add apply/unapply/diff-preview endpoints with per-p
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { Project, Manifest, DiffPreview } from '@skill-manager/shared';
+import type { Project, Manifest, DiffPreview } from '@loom/shared';
 
 export type ProjectWithStatus = Project & { status: 'ok' | 'broken' };
 
@@ -2606,7 +2606,7 @@ export function useUnapply() {
 - [ ] **Step 2: Create `packages/web/src/components/DiffPreview.tsx`**
 
 ```tsx
-import type { DiffPreview as DP, ManifestEntry, Skill } from '@skill-manager/shared';
+import type { DiffPreview as DP, ManifestEntry, Skill } from '@loom/shared';
 import { Badge } from '@/components/ui/badge';
 
 export function DiffPreview({ diff }: { diff: DP & { missing?: string[] } }) {
@@ -2642,7 +2642,7 @@ export function DiffPreview({ diff }: { diff: DP & { missing?: string[] } }) {
 - [ ] **Step 3: Smoke typecheck**
 
 ```bash
-pnpm --filter @skill-manager/web typecheck
+pnpm --filter @loom/web typecheck
 ```
 Expected: 0 errors.
 
@@ -2898,7 +2898,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@
 import { DiffPreview } from '@/components/DiffPreview';
 import { useSkills } from '@/api/skills';
 import { useProjects, useManifest, useDiffPreview, useApply, useUnapply } from '@/api/projects';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 function group(skills: Skill[]): Record<string, Skill[]> {
   const out: Record<string, Skill[]> = {};
@@ -3097,14 +3097,14 @@ Add route inside `<Routes>`:
 - [ ] **Step 5: Typecheck**
 
 ```bash
-pnpm --filter @skill-manager/web typecheck
+pnpm --filter @loom/web typecheck
 ```
 Expected: 0 errors.
 
 - [ ] **Step 6: Manual smoke — full MVP loop**
 
-Terminal 1: `NO_OPEN=1 pnpm --filter @skill-manager/server start`
-Terminal 2: `pnpm --filter @skill-manager/web dev`
+Terminal 1: `NO_OPEN=1 pnpm --filter @loom/server start`
+Terminal 2: `pnpm --filter @loom/web dev`
 
 In browser:
 1. Go to `/`, add a project pointing to an empty temp directory
@@ -3112,7 +3112,7 @@ In browser:
 3. Select 2-3 skills, click "Preview (N)"
 4. In the diff dialog, click "Apply"
 5. Switch to "Applied" tab, verify skills appear
-6. In the temp directory, verify `.claude/skills/<name>/` exists as a link and `.claude/skill-manager.json` exists
+6. In the temp directory, verify `.claude/skills/<name>/` exists as a link and `.claude/loom.json` exists
 
 - [ ] **Step 7: Commit**
 
@@ -3159,7 +3159,7 @@ import {
   PROJECT_CLAUDE_DIR,
   RuleFileSchema,
   type RuleFile,
-} from '@skill-manager/shared';
+} from '@loom/shared';
 import { atomicWriteFile } from '../utils/fs-safe.js';
 
 export async function readRules(projectPath: string): Promise<RuleFile | null> {
@@ -3187,7 +3187,7 @@ export async function writeRules(projectPath: string, rules: RuleFile): Promise<
 Add imports at top:
 ```ts
 import { readRules, writeRules } from '../services/rule.js';
-import { RuleFileSchema } from '@skill-manager/shared';
+import { RuleFileSchema } from '@loom/shared';
 ```
 
 Inside the plugin function (before the closing brace), add:
@@ -3230,7 +3230,7 @@ describe('rules service', () => {
         excludes: [],
         keywords: ['react'],
       });
-      const content = await readFile(join(dir, '.claude', 'skill-manager.rules.yaml'), 'utf8');
+      const content = await readFile(join(dir, '.claude', 'loom.rules.yaml'), 'utf8');
       expect(content).toContain('projectHint: React app');
       const parsed = await readRules(dir);
       expect(parsed?.includes).toEqual(['skill-a']);
@@ -3249,7 +3249,7 @@ describe('rules service', () => {
 - [ ] **Step 5: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 2 new tests PASS.
 
@@ -3281,7 +3281,7 @@ Then: `pnpm install`
 - [ ] **Step 2: Create `packages/server/src/services/ai.ts`**
 
 ```ts
-import type { AiConfig, Skill } from '@skill-manager/shared';
+import type { AiConfig, Skill } from '@loom/shared';
 
 export interface RecommendInput {
   projectHint: string;
@@ -3469,7 +3469,7 @@ export async function testConnection(config: AiConfig, options: CallAiOptions = 
 ```ts
 import { describe, it, expect } from 'vitest';
 import { recommendSkills } from '../src/services/ai.js';
-import type { Skill, AiConfig } from '@skill-manager/shared';
+import type { Skill, AiConfig } from '@loom/shared';
 
 function makeSkill(id: string, name: string): Skill {
   return {
@@ -3536,7 +3536,7 @@ describe('recommendSkills', () => {
 - [ ] **Step 4: Run tests**
 
 ```bash
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server test
 ```
 Expected: 3 new AI tests PASS.
 
@@ -3560,7 +3560,7 @@ git commit -m "feat(server): add ai service with openai/anthropic styles, retry,
 
 ```ts
 import type { FastifyPluginAsync } from 'fastify';
-import { AiRecommendRequestSchema, AiConfigSchema } from '@skill-manager/shared';
+import { AiRecommendRequestSchema, AiConfigSchema } from '@loom/shared';
 import { recommendSkills, testConnection } from '../services/ai.js';
 import { scanSkills } from '../services/scanner.js';
 import type { CenterDbStore } from '../storage/center-db.js';
@@ -3602,7 +3602,7 @@ export const aiRoutes = (deps: { db: CenterDbStore; cachePath?: string }): Fasti
 ```ts
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { AiConfigSchema } from '@skill-manager/shared';
+import { AiConfigSchema } from '@loom/shared';
 import type { CenterDbStore } from '../storage/center-db.js';
 
 const SettingsBody = z.object({
@@ -3657,8 +3657,8 @@ await app.register(settingsRoutes({ db }));
 - [ ] **Step 4: Manual smoke**
 
 ```bash
-pnpm --filter @skill-manager/server typecheck
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/server typecheck
+pnpm --filter @loom/server test
 ```
 Expected: compiles; existing tests still PASS.
 
@@ -3685,7 +3685,7 @@ git commit -m "feat(server): add ai and settings endpoints"
 ```ts
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { Skill } from '@skill-manager/shared';
+import type { Skill } from '@loom/shared';
 
 export interface AiRecommendResponse {
   picks: Array<{ skill: Skill; reason: string }>;
@@ -3710,7 +3710,7 @@ export function useRecommend() {
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { RuleFile } from '@skill-manager/shared';
+import type { RuleFile } from '@loom/shared';
 
 export function useRules(projectId: string | undefined) {
   return useQuery({
@@ -3744,7 +3744,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DiffPreview } from '@/components/DiffPreview';
-import type { RuleFile } from '@skill-manager/shared';
+import type { RuleFile } from '@loom/shared';
 
 export function AiRecommendPanel({ projectId, initialRules }: { projectId: string; initialRules: RuleFile | null }) {
   const [projectHint, setProjectHint] = useState(initialRules?.projectHint ?? '');
@@ -3913,7 +3913,7 @@ Add a new `<TabsContent>` block after the existing ones:
 - [ ] **Step 5: Typecheck**
 
 ```bash
-pnpm --filter @skill-manager/web typecheck
+pnpm --filter @loom/web typecheck
 ```
 Expected: 0 errors.
 
@@ -3951,7 +3951,7 @@ import { readRules } from '../services/rule.js';
 import { recommendSkills } from '../services/ai.js';
 import { scanSkills } from '../services/scanner.js';
 import { computeDiff } from '../services/apply-helpers.js';
-import { AiConfigSchema } from '@skill-manager/shared';
+import { AiConfigSchema } from '@loom/shared';
 import { ProjectService } from '../services/project.js';
 import type { CenterDbStore } from '../storage/center-db.js';
 
@@ -4005,7 +4005,7 @@ import { useApply, useDiffPreview } from '@/api/projects';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { DiffPreview } from '@/components/DiffPreview';
-import type { RuleFile, Skill, DiffPreview as DP } from '@skill-manager/shared';
+import type { RuleFile, Skill, DiffPreview as DP } from '@loom/shared';
 
 interface SyncResponse {
   picks: Array<{ skill: Skill; reason: string }>;
@@ -4139,8 +4139,8 @@ Add `<TabsContent>`:
 - [ ] **Step 6: Typecheck + commit**
 
 ```bash
-pnpm --filter @skill-manager/web typecheck
-pnpm --filter @skill-manager/server test
+pnpm --filter @loom/web typecheck
+pnpm --filter @loom/server test
 ```
 Expected: 0 typecheck errors, all tests PASS.
 
@@ -4166,7 +4166,7 @@ git commit -m "feat: add rules editor tab and rule-driven sync endpoint"
 import { mkdtemp, mkdir, symlink, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { IS_WINDOWS } from '@skill-manager/shared';
+import { IS_WINDOWS } from '@loom/shared';
 import { copy } from 'fs-extra';
 
 export type ProbeResult = 'symlink' | 'junction' | 'copy';
@@ -4226,7 +4226,7 @@ await app.register(platformRoutes);
 - [ ] **Step 4: Smoke**
 
 ```bash
-pnpm --filter @skill-manager/server typecheck
+pnpm --filter @loom/server typecheck
 ```
 Then manually:
 ```bash
@@ -4257,7 +4257,7 @@ git commit -m "feat(server): add platform info endpoint with link-method probe"
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from './client';
-import type { AiConfig } from '@skill-manager/shared';
+import type { AiConfig } from '@loom/shared';
 
 interface SettingsResponse {
   scanPaths: string[];
@@ -4397,7 +4397,7 @@ export function SettingsPage() {
               />
               <Button variant="outline" onClick={() => setShowKey(s => !s)}>{showKey ? 'Hide' : 'Show'}</Button>
             </div>
-            <p className="mt-1 text-xs text-red-600">⚠ Stored in ~/.skill-manager/db.json in plaintext. Prefer env vars.</p>
+            <p className="mt-1 text-xs text-red-600">⚠ Stored in ~/.loom/db.json in plaintext. Prefer env vars.</p>
           </label>
           <label className="block">
             <span className="font-medium">Custom system prompt (optional)</span>
@@ -4542,8 +4542,8 @@ if (webDist) {
 "scripts": {
   "dev": "pnpm -r --parallel run dev",
   "build": "pnpm -r run build",
-  "start": "pnpm --filter @skill-manager/server start",
-  "start:prod": "pnpm -r run build && pnpm --filter @skill-manager/server start",
+  "start": "pnpm --filter @loom/server start",
+  "start:prod": "pnpm -r run build && pnpm --filter @loom/server start",
   "test": "pnpm -r run test",
   "typecheck": "pnpm -r run typecheck",
   "lint": "pnpm -r run lint"
@@ -4623,7 +4623,7 @@ git commit -m "ci: add github actions workflow for ubuntu + windows test matrix"
 - [ ] **Step 1: Create `README.md`**
 
 ```markdown
-# Skill Manager
+# Loom
 
 Local multi-project manager for Claude Code skills. Browse installed skills from `~/.claude/`, apply per-project subsets via symlinks/junctions, and ask an AI to recommend skills for each project based on a rules file.
 
@@ -4651,17 +4651,17 @@ pnpm dev
 
 ## Data locations
 
-- Central config / project registry: `~/.skill-manager/db.json`
-- Scanner cache: `~/.skill-manager/skills-cache.json`
-- Per-project applied manifest: `<project>/.claude/skill-manager.json`
-- Per-project rules (committable): `<project>/.claude/skill-manager.rules.yaml`
+- Central config / project registry: `~/.loom/db.json`
+- Scanner cache: `~/.loom/skills-cache.json`
+- Per-project applied manifest: `<project>/.claude/loom.json`
+- Per-project rules (committable): `<project>/.claude/loom.rules.yaml`
 
 ## Workflow
 
 1. **Add a project** on the Projects page (absolute path).
 2. **Manual mode**: open the project, switch to "Add skills", select skills, preview and apply.
 3. **AI mode**: fill project hint + rules, click "Generate recommendations", adjust picks, save rules + apply.
-4. **Rule-driven sync**: later, edit `skill-manager.rules.yaml` and click "Sync by rules" to regenerate.
+4. **Rule-driven sync**: later, edit `loom.rules.yaml` and click "Sync by rules" to regenerate.
 
 ## Windows
 
@@ -4685,7 +4685,7 @@ git commit -m "docs: add README with setup and workflow instructions"
 
 ## Self-Review
 
-**Spec coverage check** (against `2026-04-20-skill-manager-design.md`):
+**Spec coverage check** (against `2026-04-20-loom-design.md`):
 
 | Spec section | Covered by task(s) |
 |---|---|
@@ -4726,7 +4726,7 @@ git commit -m "docs: add README with setup and workflow instructions"
 
 ## Execution Handoff
 
-**Plan complete and saved to `docs/superpowers/plans/2026-04-20-skill-manager-implementation.md`. Two execution options:**
+**Plan complete and saved to `docs/superpowers/plans/2026-04-20-loom-implementation.md`. Two execution options:**
 
 **1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration.
 
