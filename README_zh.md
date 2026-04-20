@@ -50,7 +50,7 @@ Loom 是一个本地优先的 Web 应用，用来对 [Claude Code](https://claud
 ### 安装与启动
 
 ```bash
-git clone https://github.com/<your-username>/loom.git
+git clone https://github.com/puremixai/loom.git
 cd loom
 pnpm install
 pnpm build       # 构建前端 SPA 到 dist/

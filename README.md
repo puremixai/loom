@@ -50,7 +50,7 @@ Once you have 50+ skills installed across plugins and custom sources, every Clau
 ### Install & run
 
 ```bash
-git clone https://github.com/<your-username>/loom.git
+git clone https://github.com/puremixai/loom.git
 cd loom
 pnpm install
 pnpm build       # compiles the web SPA into dist/
