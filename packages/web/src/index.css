@@ -1,6 +1,70 @@
+/* Geist font family comes bundled via the `geist` package. We import the raw CSS. */
+@import 'geist/font.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light dark; }
-body { @apply bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50; }
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    font-family: 'Geist', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-white text-ink-900;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-feature-settings: 'liga';
+  }
+
+  ::selection {
+    background: hsla(0, 0%, 95%, 1);
+  }
+
+  *:focus-visible {
+    outline: 2px solid hsla(212, 100%, 48%, 1);
+    outline-offset: 2px;
+  }
+
+  /* Hide default focus ring in favor of the global focus-visible rule above */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@layer components {
+  .shadow-border {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-ring-light {
+    box-shadow: 0 0 0 1px #ebebeb;
+  }
+
+  .shadow-card {
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.08),
+      0 2px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-card-elevated {
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.08),
+      0 2px 2px rgba(0, 0, 0, 0.04),
+      0 8px 8px -8px rgba(0, 0, 0, 0.04),
+      inset 0 0 0 1px #fafafa;
+  }
+}
