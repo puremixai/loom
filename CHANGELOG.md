@@ -2,6 +2,15 @@
 
 All notable changes to **Loom** are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+中文版: [CHANGELOG.zh.md](CHANGELOG.zh.md)
+
+## [0.2.1] — 2026-04-20
+
+### Documentation
+
+- Add Chinese changelog (`CHANGELOG.zh.md`) mirroring the English version
+- Satisfies the release-skills workflow requirement for dual-language changelogs
+
 ## [0.2.0] — 2026-04-20
 
 ### Added
@@ -83,5 +92,6 @@ Initial MVP release.
 - 27 server tests + 5 shared-schema tests, filesystem-integration style
 - CI on Ubuntu + Windows × Node 20 / 22
 
+[0.2.1]: https://github.com/puremixai/loom/releases/tag/v0.2.1
 [0.2.0]: https://github.com/puremixai/loom/releases/tag/v0.2.0
 [0.1.0]: https://github.com/puremixai/loom/releases/tag/v0.1.0

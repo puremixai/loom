@@ -23,6 +23,9 @@ Loom 是一个本地优先的 Web 应用，用来对 [Claude Code](https://claud
 
 - **本地 Web UI** — 一句 `pnpm start` 启动 Fastify + SPA，监听 `127.0.0.1:4178`，无云账号、无需登录
 - **多项目中心** — 单个窗口管理 N 个项目目录
+- **树状导航** *(v0.2)* — 技能库左侧侧栏按 source → marketplace → plugin 分层；选中状态同步 URL，支持分享链接 + 浏览器前进/后退
+- **用户自定义技能目录** *(v0.2)* — 一等公民字段 `~/.loom/skills/`，天然适合做 Claude Code `skill-creator` 的落地位置；归类为 `user-local`，与只读的 Claude Code 源区分
+- **源目录更新** *(v0.2)* — 识别 git 托管的技能源，用户仓库一键 `git pull`，插件则给出 `claude plugins update` 命令供复制（Loom 不接管 Claude Code 的插件簿记）
 - **两种选择模式**
   - **手动**：浏览 / 搜索 / 过滤全量技能库，勾选、预览差异、应用
   - **AI 推荐**：输入项目描述和规则，让 LLM 给出带理由的推荐，你确认后再落盘
@@ -101,13 +104,14 @@ pnpm dev
 
 ### 扫描路径
 
-默认扫描的三个根目录：
+默认扫描的根目录：
 
 - `~/.claude/skills` — 标记为 `user`
 - `~/.claude/custom-skills` — 标记为 `custom`
 - `~/.claude/plugins/cache` — 标记为 `plugin`，marketplace/插件名自动提取
+- `~/.loom/skills` *(v0.2, Loom 管辖)* — 标记为 `user-local`，首次启动自动创建；可在 **Settings → User skills directory** 修改位置
 
-在 **Settings → Scan paths** 里可自由增删重排。
+在 **Settings → Scan paths** 里可自由增删重排。用户技能目录**始终**被扫描——即使你把它从 scan paths 列表里删掉。
 
 ### AI 服务配置
 
@@ -143,8 +147,9 @@ Body: { "model", "system", "messages": [...], "max_tokens" }
 
 | 文件 | 位置 | 用途 | 入 git? |
 |---|---|---|---|
-| 中心注册表 | `~/.loom/db.json` | 项目列表 + AI 配置 + 扫描路径 | 不适用（不在任何 repo 里） |
+| 中心注册表 | `~/.loom/db.json` | 项目列表 + AI 配置 + 扫描路径 + 用户技能目录 | 不适用（不在任何 repo 里） |
 | 扫描缓存 | `~/.loom/skills-cache.json` | fingerprint 缓存，增量扫描 | 不适用 |
+| 用户技能目录 | `~/.loom/skills/` *(默认)* | 你自己写的技能；作为 `source: 'user-local'` 自动扫描 | 不适用（如果你把它做成 git repo 才入 git） |
 | 规则文件 | `<项目>/.claude/loom.rules.yaml` | 意图：projectHint、includes、excludes、keywords、aiGuidance | **是** — 团队共享 |
 | Manifest | `<项目>/.claude/loom.json` | 本机实际应用了什么，含绝对源路径 | 否 — 环境快照 |
 | 软链接 | `<项目>/.claude/skills/<名>/` | 指向源技能目录的 junction/symlink/复制 | 否 |
@@ -173,8 +178,10 @@ packages/
 | `ProjectService` | [`packages/server/src/services/project.ts`](packages/server/src/services/project.ts) | 项目 CRUD、路径校验 |
 | `RuleService` | [`packages/server/src/services/rule.ts`](packages/server/src/services/rule.ts) | YAML 读写 + zod 校验 |
 | `AiService` | [`packages/server/src/services/ai.ts`](packages/server/src/services/ai.ts) | OpenAI + Anthropic 请求构造、重试、响应归一化 |
+| `UserDirService` *(v0.2)* | [`packages/server/src/services/user-dir.ts`](packages/server/src/services/user-dir.ts) | 用户技能目录 resolve / ensure / validate |
+| `SourceUpdateService` *(v0.2)* | [`packages/server/src/services/source-update.ts`](packages/server/src/services/source-update.ts) | `findGitRoot`、`detectGitRoots`、`checkUpdate`、`pullRepo`——git shell 封装（含超时 + `git-not-found` / `timeout` 错误归一化） |
 
-完整架构详见 [`docs/superpowers/specs/2026-04-20-loom-design.md`](docs/superpowers/specs/2026-04-20-loom-design.md)。
+完整架构详见 [`docs/superpowers/specs/2026-04-20-loom-design.md`](docs/superpowers/specs/2026-04-20-loom-design.md)；v0.2 特性 spec 见 [`docs/superpowers/specs/2026-04-20-source-management-design.md`](docs/superpowers/specs/2026-04-20-source-management-design.md)。
 
 ### API 列表
 
@@ -197,9 +204,13 @@ POST   /api/projects/:id/unapply         { skillIds? }
 POST   /api/projects/:id/sync            读 rules.yaml + AI + 返回 diff
 POST   /api/ai/recommend
 POST   /api/ai/test                      连通性测试
-GET    /api/settings
-PUT    /api/settings
-GET    /api/platform
+GET    /api/settings                     响应含 userSkillsDir
+PUT    /api/settings                     可更新 userSkillsDir 并做校验
+GET    /api/platform                     响应含 userSkillsDir
+POST   /api/user-skills-dir/open         (v0.2) 系统文件管理器打开该目录
+GET    /api/sources                      (v0.2) 所有 git 托管的技能源
+POST   /api/sources/check                (v0.2) 批量 ahead/behind 检测，5 并发
+POST   /api/sources/pull                 (v0.2) git pull（仅 git-source 类型）
 ```
 
 ---
@@ -226,7 +237,7 @@ pnpm dev
 # 全量类型检查
 pnpm -r run typecheck
 
-# 跑所有测试（后端 27 个，都是真实 fs 集成）
+# 跑所有测试（共 62 个：shared 5 + server 53 + web 4）
 pnpm -r run test
 
 # 生产构建：前端进 dist/，后端统一在 :4178 提供
@@ -256,15 +267,19 @@ loom/
 │  └─ web/                 React SPA
 │     ├─ src/
 │     │  ├─ pages/         Projects、ProjectDetail、Skills、Settings
-│     │  ├─ components/    SkillCard, DiffPreview, AiRecommendPanel, RulesEditor, ui/*
+│     │  ├─ components/    SkillCard, SkillTree, DiffPreview, AiRecommendPanel, RulesEditor, UserSkillsDirCard, SourceUpdatesBanner, SourceUpdatesDrawer, ui/*
+│     │  ├─ hooks/         useSkillTree
 │     │  ├─ api/           TanStack Query hooks
 │     │  └─ lib/           cn 工具函数
+│     ├─ test/             useSkillTree 纯函数测试（Vitest + jsdom）
 │     └─ index.html
 ├─ docs/
 │  ├─ DESIGN.md            Vercel/Geist 视觉系统说明
 │  └─ superpowers/
-│     ├─ specs/            架构 spec
+│     ├─ specs/            架构 spec（v0.1 MVP + v0.2 源管理）
 │     └─ plans/            实施计划
+├─ CHANGELOG.md            英文更新日志
+├─ CHANGELOG.zh.md         中文更新日志
 ├─ CLAUDE.md               给 Claude Code 会话的工程指南（对人也适用）
 └─ README.md / README_zh.md
 ```
@@ -273,18 +288,22 @@ loom/
 
 ### 测试
 
-后端测试全部走真实的 `os.tmpdir()` fixture，`try/finally` 清理——我们关心的 bug 是**文件系统行为**（尤其是 Windows junction 检测），mock 掉就失去了测试意义。CI 跑 Ubuntu + Windows × Node 20 / 22 矩阵。
+后端测试全部走真实的 `os.tmpdir()` fixture，`try/finally` 清理——我们关心的 bug 是**文件系统行为**（尤其是 Windows junction 检测，以及 `git fetch` / `git pull` 集成），mock 掉就失去了测试意义。唯一例外：`checkUpdate` / `pullRepo` 支持注入 `runner`，大多数单测不触发真实 `git`；仅一个集成测试会用真实 `git init` 构造本地仓库验证端到端路径。CI 跑 Ubuntu + Windows × Node 20 / 22 矩阵。
 
-前端测试暂缺；当前版本的 UI 靠手动验证。欢迎贡献。
+v0.2 落地了首批前端测试：4 个 `useSkillTree` 纯函数单测 + Vitest/jsdom/testing-library 基础设施。欢迎贡献组件级测试。
 
 ---
 
 ## Roadmap
 
-- [ ] 前端测试（Vitest + React Testing Library）
+- [ ] 移动端 `<768px` 侧栏降级（扁平 `<select>`）
+- [ ] 抽屉内「Up to date」/「Errors」分组可折叠
+- [ ] 组件级前端测试（React Testing Library）
 - [ ] CLI 陪伴工具，用于 CI / 自动化规则同步
 - [ ] 文件系统监听模式（可选；用于快速迭代技能时）
 - [ ] 技能预览：渲染 Markdown + frontmatter 表格
+- [ ] 技能树键盘导航
+- [ ] 从 Sources 抽屉 shell-out 调用 `claude plugins update <name>`（从复制命令升级）
 - [ ] 团队模式：通过轻量同步协议跨 repo 共享规则
 - [ ] 项目配置导入/导出
 - [ ] 技能集合 / 标签 / 保存过的筛选

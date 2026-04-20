@@ -23,6 +23,9 @@ Once you have 50+ skills installed across plugins and custom sources, every Clau
 
 - **Local web UI** — single `pnpm start` boots a Fastify API + SPA on `127.0.0.1:4178`, no cloud account, no sign-in
 - **Multi-project center** — one hub that manages N project directories from a single window
+- **Tree-based navigation** *(v0.2)* — Skills Library sidebar groups skills by source → marketplace → plugin; selection synced to the URL so paths are shareable and browser back/forward works
+- **User-managed skills directory** *(v0.2)* — first-class `~/.loom/skills/` location for your own authored skills (a natural target for Claude Code's `skill-creator`); classified as `user-local` to distinguish from read-only sources
+- **Source updates** *(v0.2)* — detect git-backed skill sources, one-click `git pull` for your own repos, copy-command prompt for plugin updates (Loom doesn't touch Claude Code's plugin metadata)
 - **Two selection modes**
   - **Manual** — browse / search / filter the full library, check boxes, preview diff, apply
   - **AI-driven** — describe your project + rules, let an LLM propose skills with reasoning, approve picks
@@ -106,8 +109,9 @@ Default roots scanned for `**/SKILL.md`:
 - `~/.claude/skills` — marked as `user` source
 - `~/.claude/custom-skills` — marked as `custom`
 - `~/.claude/plugins/cache` — marked as `plugin`, with the marketplace/plugin name extracted automatically
+- `~/.loom/skills` *(v0.2, Loom-managed)* — marked as `user-local`, auto-created on first launch; configurable in **Settings → User skills directory**
 
-Configurable in **Settings → Scan paths**. Add, remove, or reorder freely.
+Configurable in **Settings → Scan paths**. Add, remove, or reorder freely. The user-skills directory always gets scanned even if you remove it from this list.
 
 ### AI provider
 
@@ -143,8 +147,9 @@ Example: `https://api.anthropic.com/v1/messages`.
 
 | File | Location | Purpose | Commit? |
 |---|---|---|---|
-| Central registry | `~/.loom/db.json` | Registered projects + AI config + scan paths | n/a (not in any repo) |
+| Central registry | `~/.loom/db.json` | Registered projects + AI config + scan paths + user skills dir | n/a (not in any repo) |
 | Scanner cache | `~/.loom/skills-cache.json` | Fingerprint cache for incremental rescans | n/a |
+| User skills dir | `~/.loom/skills/` *(default)* | Your own authored skills; auto-scanned as `source: 'user-local'` | n/a (your own repo, if you make it one) |
 | Rules file | `<project>/.claude/loom.rules.yaml` | Your intent: projectHint, includes, excludes, keywords, aiGuidance | **Yes** — share with teammates |
 | Applied manifest | `<project>/.claude/loom.json` | What Loom linked on this machine, with absolute source paths | No — environment snapshot |
 | Linked skills | `<project>/.claude/skills/<name>/` | Junctions / symlinks / copies into the actual skill dirs | No |
@@ -173,8 +178,10 @@ packages/
 | `ProjectService` | [`packages/server/src/services/project.ts`](packages/server/src/services/project.ts) | CRUD on the project registry, path validation |
 | `RuleService` | [`packages/server/src/services/rule.ts`](packages/server/src/services/rule.ts) | YAML read/write with zod validation |
 | `AiService` | [`packages/server/src/services/ai.ts`](packages/server/src/services/ai.ts) | OpenAI + Anthropic request builders, retry, response validation |
+| `UserDirService` *(v0.2)* | [`packages/server/src/services/user-dir.ts`](packages/server/src/services/user-dir.ts) | Resolve / ensure / validate the user skills directory |
+| `SourceUpdateService` *(v0.2)* | [`packages/server/src/services/source-update.ts`](packages/server/src/services/source-update.ts) | `findGitRoot`, `detectGitRoots`, `checkUpdate`, `pullRepo` — git shell wrapper with timeout + `git-not-found` / `timeout` error normalization |
 
-Full architecture in [`docs/superpowers/specs/2026-04-20-loom-design.md`](docs/superpowers/specs/2026-04-20-loom-design.md).
+Full architecture in [`docs/superpowers/specs/2026-04-20-loom-design.md`](docs/superpowers/specs/2026-04-20-loom-design.md); v0.2 feature spec in [`docs/superpowers/specs/2026-04-20-source-management-design.md`](docs/superpowers/specs/2026-04-20-source-management-design.md).
 
 ### API surface
 
@@ -197,9 +204,13 @@ POST   /api/projects/:id/unapply         { skillIds? }
 POST   /api/projects/:id/sync            reads rules.yaml + AI + diff
 POST   /api/ai/recommend
 POST   /api/ai/test                      connectivity probe
-GET    /api/settings
-PUT    /api/settings
-GET    /api/platform
+GET    /api/settings                     now returns userSkillsDir
+PUT    /api/settings                     accepts userSkillsDir with validation
+GET    /api/platform                     now includes userSkillsDir
+POST   /api/user-skills-dir/open         (v0.2) reveal dir in OS file manager
+GET    /api/sources                      (v0.2) git-backed source refs
+POST   /api/sources/check                (v0.2) batch ahead/behind, 5-way concurrency
+POST   /api/sources/pull                 (v0.2) git pull for git-source kind only
 ```
 
 ---
@@ -226,7 +237,7 @@ pnpm dev
 # typecheck everything
 pnpm -r run typecheck
 
-# run all tests (27 cases on the server, filesystem-integration style)
+# run all tests (62 total: 5 shared + 53 server + 4 web)
 pnpm -r run test
 
 # production build: web → dist/, server serves both on :4178
@@ -256,35 +267,43 @@ loom/
 │  └─ web/                 React SPA
 │     ├─ src/
 │     │  ├─ pages/         Projects, ProjectDetail, Skills, Settings
-│     │  ├─ components/    SkillCard, DiffPreview, AiRecommendPanel, RulesEditor, ui/*
+│     │  ├─ components/    SkillCard, SkillTree, DiffPreview, AiRecommendPanel, RulesEditor, UserSkillsDirCard, SourceUpdatesBanner, SourceUpdatesDrawer, ui/*
+│     │  ├─ hooks/         useSkillTree
 │     │  ├─ api/           TanStack Query hooks
 │     │  └─ lib/           cn utility
+│     ├─ test/             useSkillTree pure-helper tests (Vitest + jsdom)
 │     └─ index.html
 ├─ docs/
 │  ├─ DESIGN.md            Vercel/Geist visual system
 │  └─ superpowers/
-│     ├─ specs/            architecture spec
-│     └─ plans/            implementation plan
+│     ├─ specs/            architecture specs (v0.1 MVP + v0.2 source management)
+│     └─ plans/            implementation plans
+├─ CHANGELOG.md            English changelog
+├─ CHANGELOG.zh.md         Chinese changelog
 ├─ CLAUDE.md               guidance for Claude Code sessions
-└─ README.md               you are here
+└─ README.md / README_zh.md  you are here
 ```
 
 See [`CLAUDE.md`](CLAUDE.md) for the project's internal conventions — it's written for LLM agents but is also a concise engineering guide for humans.
 
 ### Tests
 
-Backend tests use real `os.tmpdir()` fixtures with `try/finally` cleanup — filesystem behavior (especially Windows junction detection) is the main thing we verify, so mocks would defeat the purpose. CI runs on Ubuntu + Windows, Node 20 + 22.
+Backend tests use real `os.tmpdir()` fixtures with `try/finally` cleanup — filesystem behavior (especially Windows junction detection and `git fetch` / `git pull` integration) is the main thing we verify, so mocks would defeat the purpose. The one exception: `checkUpdate` / `pullRepo` accept an injectable `runner` so most unit tests don't spawn real `git`; a single integration test exercises the end-to-end path on a real `git init` repo. CI runs on Ubuntu + Windows, Node 20 + 22.
 
-Frontend tests are not yet written; the current release ships with UI verified manually. Contributions welcome.
+Frontend tests landed in v0.2: 4 pure-helper tests for `useSkillTree` + Vitest/jsdom/testing-library infrastructure. Component-level tests welcome.
 
 ---
 
 ## Roadmap
 
-- [ ] Frontend test coverage (Vitest + React Testing Library)
+- [ ] Mobile `<768px` sidebar fallback (flat `<select>`)
+- [ ] Collapsible "Up to date" / "Errors" drawer sections
+- [ ] Component-level frontend tests with React Testing Library
 - [ ] CLI companion for CI / automated rules-driven sync
 - [ ] Filesystem watch mode (opt-in, for rapid skill iteration)
 - [ ] Skill preview with rendered Markdown + frontmatter table
+- [ ] Keyboard navigation on the Skills tree
+- [ ] Shell-out `claude plugins update <name>` from the Sources drawer (upgrade from copy-command)
 - [ ] Team mode: share rules across repos via a lightweight sync protocol
 - [ ] Import/export project configurations
 - [ ] Skill collections / tags / saved filters
