@@ -1,5 +1,6 @@
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import { SkillsPage } from './pages/SkillsPage';
+import { ProjectsPage } from './pages/ProjectsPage';
 
 export default function App() {
   return (
@@ -15,9 +16,9 @@ export default function App() {
         </header>
         <main className="mx-auto max-w-7xl p-6">
           <Routes>
-            <Route path="/" element={<div>Projects (Task 15)</div>} />
+            <Route path="/" element={<ProjectsPage />} />
             <Route path="/skills" element={<SkillsPage />} />
-            <Route path="/settings" element={<div>Settings (Task 24)</div>} />
+            <Route path="/settings" element={<div>Settings (Task 23)</div>} />
           </Routes>
         </main>
       </div>
