@@ -22,5 +22,8 @@ coverage/
 *.tmp
 .loom-staging-*/
 
+# TypeScript build info (incremental compile cache)
+*.tsbuildinfo
+
 # Claude Code session artifacts
 .claude/
