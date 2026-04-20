@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@
 import { DiffPreview } from '@/components/DiffPreview';
 import { useSkills } from '@/api/skills';
 import { useProjects, useManifest, useDiffPreview, useApply, useUnapply } from '@/api/projects';
+import { AiRecommendPanel } from '@/components/AiRecommendPanel';
+import { useRules } from '@/api/rules';
 import type { Skill } from '@skill-manager/shared';
 
 function group(skills: Skill[]): Record<string, Skill[]> {
@@ -29,6 +31,7 @@ export function ProjectDetailPage() {
   const diffMut = useDiffPreview();
   const applyMut = useApply();
   const unapplyMut = useUnapply();
+  const { data: rulesRes } = useRules(id);
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [q, setQ] = useState('');
@@ -95,6 +98,7 @@ export function ProjectDetailPage() {
         <TabsList>
           <TabsTrigger value="applied">Applied ({manifest?.skills.length ?? 0})</TabsTrigger>
           <TabsTrigger value="add">Add skills</TabsTrigger>
+          <TabsTrigger value="ai">AI recommend</TabsTrigger>
         </TabsList>
 
         <TabsContent value="applied">
@@ -167,6 +171,10 @@ export function ProjectDetailPage() {
               </section>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="ai">
+          {id && <AiRecommendPanel projectId={id} initialRules={rulesRes?.rules ?? null} />}
         </TabsContent>
       </Tabs>
 
