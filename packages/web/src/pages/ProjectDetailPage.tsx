@@ -10,6 +10,7 @@ import { DiffPreview } from '@/components/DiffPreview';
 import { useSkills } from '@/api/skills';
 import { useProjects, useManifest, useDiffPreview, useApply, useUnapply } from '@/api/projects';
 import { AiRecommendPanel } from '@/components/AiRecommendPanel';
+import { RulesEditor } from '@/components/RulesEditor';
 import { useRules } from '@/api/rules';
 import type { Skill } from '@skill-manager/shared';
 
@@ -99,6 +100,7 @@ export function ProjectDetailPage() {
           <TabsTrigger value="applied">Applied ({manifest?.skills.length ?? 0})</TabsTrigger>
           <TabsTrigger value="add">Add skills</TabsTrigger>
           <TabsTrigger value="ai">AI recommend</TabsTrigger>
+          <TabsTrigger value="rules">Rules & sync</TabsTrigger>
         </TabsList>
 
         <TabsContent value="applied">
@@ -175,6 +177,9 @@ export function ProjectDetailPage() {
 
         <TabsContent value="ai">
           {id && <AiRecommendPanel projectId={id} initialRules={rulesRes?.rules ?? null} />}
+        </TabsContent>
+        <TabsContent value="rules">
+          {id && <RulesEditor projectId={id} />}
         </TabsContent>
       </Tabs>
 
