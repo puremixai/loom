@@ -41,4 +41,17 @@ describe('schemas', () => {
       })
     ).toThrow();
   });
+
+  it('rejects empty-string required fields on Skill', () => {
+    expect(() => SkillSchema.parse({
+      id: '', name: 'x', description: 'x',
+      source: 'user', sourceRoot: '/', absolutePath: '/', skillDir: '/',
+      fingerprint: '1',
+    })).toThrow();
+    expect(() => SkillSchema.parse({
+      id: 'x', name: 'x', description: 'x',
+      source: 'user', sourceRoot: '/', absolutePath: '', skillDir: '/',
+      fingerprint: '1',
+    })).toThrow();
+  });
 });

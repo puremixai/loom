@@ -1,15 +1,15 @@
 import { z } from 'zod';
 
 export const SkillSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().min(1),
   source: z.enum(['user', 'custom', 'plugin']),
-  sourceRoot: z.string(),
-  absolutePath: z.string(),
-  skillDir: z.string(),
+  sourceRoot: z.string().min(1),
+  absolutePath: z.string().min(1),
+  skillDir: z.string().min(1),
   pluginName: z.string().optional(),
-  fingerprint: z.string(),
+  fingerprint: z.string().min(1),
 });
 export type Skill = z.infer<typeof SkillSchema>;
 
@@ -35,10 +35,10 @@ export const RuleFileSchema = z.object({
 export type RuleFile = z.infer<typeof RuleFileSchema>;
 
 export const ManifestEntrySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  sourceDir: z.string(),
-  linkedAs: z.string(),
+  id: z.string().min(1),
+  name: z.string().min(1),
+  sourceDir: z.string().min(1),
+  linkedAs: z.string().min(1),
 });
 export type ManifestEntry = z.infer<typeof ManifestEntrySchema>;
 
@@ -83,8 +83,8 @@ export const DiffPreviewSchema = z.object({
 export type DiffPreview = z.infer<typeof DiffPreviewSchema>;
 
 export const AiRecommendRequestSchema = z.object({
-  projectId: z.string(),
-  projectHint: z.string(),
+  projectId: z.string().uuid(),
+  projectHint: z.string().min(1),
   includes: z.array(z.string()).default([]),
   excludes: z.array(z.string()).default([]),
   keywords: z.array(z.string()).default([]),
@@ -98,3 +98,8 @@ export const AiRecommendResultSchema = z.object({
   })),
   warnings: z.array(z.string()).default([]),
 });
+
+export type ApplyRequest = z.infer<typeof ApplyRequestSchema>;
+export type UnapplyRequest = z.infer<typeof UnapplyRequestSchema>;
+export type AiRecommendRequest = z.infer<typeof AiRecommendRequestSchema>;
+export type AiRecommendResult = z.infer<typeof AiRecommendResultSchema>;
