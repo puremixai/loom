@@ -10,10 +10,10 @@ export function DiffPreview({ diff }: { diff: DP & { missing?: string[] } }) {
     <div>
       <div className="mb-1 flex items-center gap-2">
         <Badge variant={color}>{title}</Badge>
-        <span className="text-xs text-neutral-500">{items.length}</span>
+        <span className="text-xs text-ink-500">{items.length}</span>
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-neutral-400 italic">none</p>
+        <p className="text-xs text-ink-400 italic">none</p>
       ) : (
         <ul className="space-y-1 text-sm">
           {items.map(x => <li key={(x as { id: string }).id}>{render(x)}</li>)}

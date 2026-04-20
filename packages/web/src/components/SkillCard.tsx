@@ -13,15 +13,15 @@ export function SkillCard({ skill, selected, onToggle }: SkillCardProps) {
     <Card
       role={onToggle ? 'button' : undefined}
       onClick={onToggle ? () => onToggle(skill) : undefined}
-      className={selected ? 'ring-2 ring-neutral-900 dark:ring-neutral-100' : undefined}
+      className={selected ? 'ring-2 ring-ink-900' : undefined}
     >
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle>{skill.name}</CardTitle>
-          <Badge variant="outline">{skill.pluginName ?? skill.source}</Badge>
+          <Badge variant="secondary">{skill.pluginName ?? skill.source}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="text-sm text-neutral-600 dark:text-neutral-400">
+      <CardContent className="text-sm text-ink-600">
         {skill.description}
       </CardContent>
     </Card>

@@ -69,62 +69,66 @@ export function AiRecommendPanel({ projectId, initialRules }: { projectId: strin
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="space-y-3">
         <label className="block text-sm">
-          <span className="font-medium">Project hint</span>
+          <span className="font-medium text-ink-900">Project hint</span>
           <textarea
-            className="mt-1 w-full rounded border border-neutral-300 p-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 w-full rounded-md bg-white p-3 text-sm text-ink-900 shadow-ring-light transition-all hover:shadow-border"
             rows={3} value={projectHint} onChange={e => setProjectHint(e.target.value)}
             placeholder="Full-stack React + Supabase app with auth and billing."
           />
         </label>
         <label className="block text-sm">
-          <span className="font-medium">Keywords (comma-separated)</span>
+          <span className="font-medium text-ink-900">Keywords (comma-separated)</span>
           <Input value={keywordsText} onChange={e => setKeywordsText(e.target.value)} placeholder="react, supabase, auth" />
         </label>
         <label className="block text-sm">
-          <span className="font-medium">Includes (skill ids or names)</span>
+          <span className="font-medium text-ink-900">Includes (skill ids or names)</span>
           <Input value={includesText} onChange={e => setIncludesText(e.target.value)} />
         </label>
         <label className="block text-sm">
-          <span className="font-medium">Excludes</span>
+          <span className="font-medium text-ink-900">Excludes</span>
           <Input value={excludesText} onChange={e => setExcludesText(e.target.value)} />
         </label>
         <label className="block text-sm">
-          <span className="font-medium">AI guidance</span>
+          <span className="font-medium text-ink-900">AI guidance</span>
           <textarea
-            className="mt-1 w-full rounded border border-neutral-300 p-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 w-full rounded-md bg-white p-3 text-sm text-ink-900 shadow-ring-light transition-all hover:shadow-border"
             rows={3} value={aiGuidance} onChange={e => setAiGuidance(e.target.value)}
             placeholder="Prefer skills focused on testing and debugging."
           />
         </label>
         <div className="flex items-center gap-2">
           <Button onClick={runRecommend} disabled={recommend.isPending || projectHint.trim().length === 0}>
-            {recommend.isPending ? 'Generating...' : 'Generate recommendations'}
+            {recommend.isPending ? 'Generating…' : 'Generate recommendations'}
           </Button>
-          <Button variant="outline" onClick={saveAndPreview} disabled={selectedIds.size === 0}>
+          <Button variant="secondary" onClick={saveAndPreview} disabled={selectedIds.size === 0}>
             Save rules & preview apply
           </Button>
         </div>
-        {recommend.error && <p className="text-xs text-red-600">{(recommend.error as Error).message}</p>}
+        {recommend.error && <p className="text-xs text-ship-red">{(recommend.error as Error).message}</p>}
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Recommendations ({recommend.data?.picks.length ?? 0})</h3>
+        <h3 className="mb-2 font-mono text-xs font-medium uppercase tracking-tight text-ink-500">
+          Recommendations <span className="ml-1 text-ink-400">{recommend.data?.picks.length ?? 0}</span>
+        </h3>
         {recommend.data?.warnings.length ? (
-          <div className="mb-2 rounded border border-yellow-300 bg-yellow-50 p-2 text-xs text-yellow-900 dark:bg-yellow-950/40">
-            {recommend.data.warnings.join(' · ')}
+          <div className="mb-3 rounded-lg bg-badge-yellow-bg p-3 shadow-ring-light">
+            <p className="text-sm font-medium text-badge-yellow-text">
+              {recommend.data.warnings.join(' · ')}
+            </p>
           </div>
         ) : null}
         <div className="space-y-2">
           {recommend.data?.picks.map(p => (
-            <label key={p.skill.id} className="flex cursor-pointer items-start gap-2 rounded border p-2 text-sm dark:border-neutral-800">
+            <label key={p.skill.id} className="flex cursor-pointer items-start gap-3 rounded-lg bg-white p-3 text-sm shadow-ring-light transition-all hover:shadow-border">
               <input type="checkbox" className="mt-1" checked={selectedIds.has(p.skill.id)} onChange={() => togglePick(p.skill.id)} />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{p.skill.name}</span>
-                  <Badge variant="outline">{p.skill.pluginName ?? p.skill.source}</Badge>
+                  <span className="font-medium text-ink-900">{p.skill.name}</span>
+                  <Badge variant="secondary">{p.skill.pluginName ?? p.skill.source}</Badge>
                 </div>
-                <p className="text-xs text-neutral-500">{p.skill.description}</p>
-                <p className="mt-1 text-xs italic text-neutral-600 dark:text-neutral-400">Why: {p.reason}</p>
+                <p className="mt-0.5 text-xs text-ink-500">{p.skill.description}</p>
+                <p className="mt-1 text-xs italic text-ink-600">Why: {p.reason}</p>
               </div>
             </label>
           ))}
@@ -136,9 +140,9 @@ export function AiRecommendPanel({ projectId, initialRules }: { projectId: strin
           <DialogHeader><DialogTitle>Review changes</DialogTitle></DialogHeader>
           {diffMut.data && <DiffPreview diff={diffMut.data} />}
           <div className="mt-4 flex justify-end gap-2">
-            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
             <Button onClick={confirmApply} disabled={applyMut.isPending}>
-              {applyMut.isPending ? 'Applying...' : 'Apply'}
+              {applyMut.isPending ? 'Applying…' : 'Apply'}
             </Button>
           </div>
         </DialogContent>

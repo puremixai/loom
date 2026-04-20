@@ -77,7 +77,7 @@ export function RulesEditor({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="h-96 overflow-hidden rounded border dark:border-neutral-800">
+      <div className="h-96 overflow-hidden rounded-lg shadow-border">
         <Editor
           language="yaml"
           theme="vs-dark"
@@ -86,12 +86,12 @@ export function RulesEditor({ projectId }: { projectId: string }) {
           options={{ minimap: { enabled: false }, fontSize: 13 }}
         />
       </div>
-      {err && <p className="text-xs text-red-600">{err}</p>}
+      {err && <p className="text-xs text-ship-red">{err}</p>}
       <div className="flex items-center gap-2">
         <Button onClick={save} disabled={saveMut.isPending}>
-          {saveMut.isPending ? 'Saving...' : 'Save rules'}
+          {saveMut.isPending ? 'Saving…' : 'Save rules'}
         </Button>
-        <Button variant="outline" onClick={runSync}>
+        <Button variant="secondary" onClick={runSync}>
           Sync by rules
         </Button>
       </div>
@@ -101,14 +101,16 @@ export function RulesEditor({ projectId }: { projectId: string }) {
           <DialogHeader><DialogTitle>Sync preview</DialogTitle></DialogHeader>
           {diffMut.data && <DiffPreview diff={diffMut.data} />}
           {syncResult?.warnings.length ? (
-            <div className="mt-2 rounded border border-yellow-300 bg-yellow-50 p-2 text-xs text-yellow-900 dark:bg-yellow-950/40">
-              {syncResult.warnings.join(' · ')}
+            <div className="mt-3 rounded-lg bg-badge-yellow-bg p-3 shadow-ring-light">
+              <p className="text-sm font-medium text-badge-yellow-text">
+                {syncResult.warnings.join(' · ')}
+              </p>
             </div>
           ) : null}
           <div className="mt-4 flex justify-end gap-2">
-            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
             <Button onClick={confirmApply} disabled={applyMut.isPending}>
-              {applyMut.isPending ? 'Applying...' : 'Apply'}
+              {applyMut.isPending ? 'Applying…' : 'Apply'}
             </Button>
           </div>
         </DialogContent>

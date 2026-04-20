@@ -46,60 +46,82 @@ export function SettingsPage() {
     });
   }
 
+  const Label = ({ children, hint }: { children: React.ReactNode; hint?: string }) => (
+    <div className="mb-2">
+      <span className="text-sm font-medium text-ink-900">{children}</span>
+      {hint && <p className="mt-0.5 text-xs text-ink-500">{hint}</p>}
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Settings</h2>
+    <div className="space-y-8">
+      <div>
+        <h1 className="font-semibold leading-tight tracking-heading text-ink-900" style={{ fontSize: '32px' }}>
+          Settings
+        </h1>
+        <p className="mt-1.5 text-sm text-ink-500">
+          AI provider, scan paths, and platform diagnostics
+        </p>
+      </div>
 
       <Card>
-        <CardHeader><CardTitle>AI configuration</CardTitle></CardHeader>
-        <CardContent className="space-y-3 text-sm">
+        <CardHeader>
+          <CardTitle>AI configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
           <label className="block">
-            <span className="font-medium">Request style</span>
+            <Label hint="Both styles share the same response parser.">Request style</Label>
             <select
-              className="mt-1 w-full rounded border border-neutral-300 p-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="flex h-9 w-full rounded-md bg-white px-3 text-sm text-ink-900 shadow-ring-light transition-all hover:shadow-border"
               value={requestStyle} onChange={e => setRequestStyle(e.target.value as 'openai' | 'anthropic')}
             >
               <option value="openai">openai (chat/completions)</option>
               <option value="anthropic">anthropic (messages)</option>
             </select>
           </label>
+
           <label className="block">
-            <span className="font-medium">Endpoint URL</span>
-            <Input value={endpoint} onChange={e => setEndpoint(e.target.value)} placeholder="https://api.openai.com/v1/chat/completions" />
+            <Label>Endpoint URL</Label>
+            <Input className="font-mono text-xs" value={endpoint} onChange={e => setEndpoint(e.target.value)} placeholder="https://api.openai.com/v1/chat/completions" />
           </label>
+
           <label className="block">
-            <span className="font-medium">Model</span>
-            <Input value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4o-mini or claude-3-5-sonnet-latest" />
+            <Label>Model</Label>
+            <Input className="font-mono text-xs" value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4o-mini or claude-sonnet-4-6" />
           </label>
+
           <label className="block">
-            <span className="font-medium">API key env var (preferred)</span>
-            <Input value={apiKeyEnv} onChange={e => setApiKeyEnv(e.target.value)} placeholder="OPENAI_API_KEY" />
+            <Label hint="Preferred — key read from this environment variable at runtime.">API key env var</Label>
+            <Input className="font-mono text-xs" value={apiKeyEnv} onChange={e => setApiKeyEnv(e.target.value)} placeholder="OPENAI_API_KEY" />
           </label>
+
           <label className="block">
-            <span className="font-medium">API key (fallback, stored in plaintext)</span>
+            <Label hint="Fallback — stored in plaintext in ~/.skill-manager/db.json. Prefer env var.">API key</Label>
             <div className="flex gap-2">
               <Input
                 type={showKey ? 'text' : 'password'}
                 value={apiKey} onChange={e => setApiKey(e.target.value)}
-                placeholder="sk-..."
+                placeholder="sk-…"
+                className="font-mono text-xs"
               />
-              <Button variant="outline" onClick={() => setShowKey(s => !s)}>{showKey ? 'Hide' : 'Show'}</Button>
+              <Button variant="secondary" onClick={() => setShowKey(s => !s)}>{showKey ? 'Hide' : 'Show'}</Button>
             </div>
-            <p className="mt-1 text-xs text-red-600">&#9888; Stored in ~/.skill-manager/db.json in plaintext. Prefer env vars.</p>
           </label>
+
           <label className="block">
-            <span className="font-medium">Custom system prompt (optional)</span>
+            <Label hint="Overrides the default system prompt when set.">Custom system prompt</Label>
             <textarea
-              className="mt-1 w-full rounded border border-neutral-300 p-2 dark:border-neutral-700 dark:bg-neutral-900"
-              rows={4} value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)}
+              className="flex w-full rounded-md bg-white p-3 text-sm text-ink-900 shadow-ring-light transition-all hover:shadow-border"
+              rows={5} value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)}
             />
           </label>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-3 pt-2">
             <Button onClick={handleSave} disabled={save.isPending}>
-              {save.isPending ? 'Saving...' : 'Save'}
+              {save.isPending ? 'Saving…' : 'Save'}
             </Button>
-            <Button variant="outline" onClick={() => test.mutate()} disabled={test.isPending}>
-              {test.isPending ? 'Testing...' : 'Test connection'}
+            <Button variant="secondary" onClick={() => test.mutate()} disabled={test.isPending}>
+              {test.isPending ? 'Testing…' : 'Test connection'}
             </Button>
             {test.data && (
               test.data.ok
@@ -108,32 +130,39 @@ export function SettingsPage() {
             )}
           </div>
           {test.data && !test.data.ok && (
-            <p className="text-xs text-red-600">{test.data.error}</p>
+            <p className="font-mono text-xs text-ship-red">{test.data.error}</p>
           )}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Scan paths</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Scan paths</CardTitle>
+        </CardHeader>
         <CardContent>
-          <p className="mb-2 text-xs text-neutral-500">One path per line. Defaults cover ~/.claude skills and plugins.</p>
+          <p className="mb-3 text-xs text-ink-500">One path per line. Defaults cover ~/.claude skills and plugins.</p>
           <textarea
-            className="w-full rounded border border-neutral-300 p-2 font-mono text-xs dark:border-neutral-700 dark:bg-neutral-900"
+            className="flex w-full rounded-md bg-white p-3 font-mono text-xs text-ink-900 shadow-ring-light transition-all hover:shadow-border"
             rows={6} value={scanPathsText} onChange={e => setScanPathsText(e.target.value)}
           />
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Platform</CardTitle></CardHeader>
-        <CardContent className="text-sm">
+        <CardHeader>
+          <CardTitle>Platform</CardTitle>
+        </CardHeader>
+        <CardContent>
           {platform ? (
-            <ul className="space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
-              <li>OS: {platform.os} {platform.release} ({platform.arch})</li>
-              <li>Node: {platform.node}</li>
-              <li>Link method: <Badge variant="secondary">{platform.linkMethodPreview}</Badge></li>
-            </ul>
-          ) : <p className="text-xs text-neutral-500">Loading...</p>}
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <dt className="font-mono text-xs uppercase tracking-tight text-ink-500">OS</dt>
+              <dd className="font-mono text-xs text-ink-900">{platform.os} {platform.release} ({platform.arch})</dd>
+              <dt className="font-mono text-xs uppercase tracking-tight text-ink-500">Node</dt>
+              <dd className="font-mono text-xs text-ink-900">{platform.node}</dd>
+              <dt className="font-mono text-xs uppercase tracking-tight text-ink-500">Link method</dt>
+              <dd><Badge variant="info">{platform.linkMethodPreview}</Badge></dd>
+            </dl>
+          ) : <p className="text-sm text-ink-500">Loading…</p>}
         </CardContent>
       </Card>
     </div>
