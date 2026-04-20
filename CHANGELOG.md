@@ -4,6 +4,16 @@ All notable changes to **Loom** are documented here. Format loosely follows [Kee
 
 中文版: [CHANGELOG.zh.md](CHANGELOG.zh.md)
 
+## [0.2.2] — 2026-04-20
+
+### Fixes
+
+- `apiFetch` no longer attaches `Content-Type: application/json` when the request has no body. The Sources drawer's auto-triggered `POST /api/sources/check` was hitting Fastify's `FST_ERR_CTP_EMPTY_JSON_BODY` (empty body + JSON content-type is rejected by the default parser). Clicking **View** on the Sources banner now opens the drawer and checks upstream status as intended.
+
+### CI
+
+- GitHub Actions `.github/workflows/release.yml` — auto-publishes a GitHub Release whenever a `v*` tag is pushed, extracting per-version sections from both `CHANGELOG.md` and `CHANGELOG.zh.md` to compose bilingual release notes; auto-detects pre-release tags (`v*-*`).
+
 ## [0.2.1] — 2026-04-20
 
 ### Documentation
@@ -92,6 +102,7 @@ Initial MVP release.
 - 27 server tests + 5 shared-schema tests, filesystem-integration style
 - CI on Ubuntu + Windows × Node 20 / 22
 
+[0.2.2]: https://github.com/puremixai/loom/releases/tag/v0.2.2
 [0.2.1]: https://github.com/puremixai/loom/releases/tag/v0.2.1
 [0.2.0]: https://github.com/puremixai/loom/releases/tag/v0.2.0
 [0.1.0]: https://github.com/puremixai/loom/releases/tag/v0.1.0

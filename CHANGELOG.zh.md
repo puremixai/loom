@@ -4,6 +4,16 @@
 
 English version: [CHANGELOG.md](CHANGELOG.md)
 
+## [0.2.2] — 2026-04-20
+
+### 修复
+
+- `apiFetch` 在请求无 body 时不再强制设置 `Content-Type: application/json`。之前 Sources 抽屉打开时自动触发的 `POST /api/sources/check` 会撞上 Fastify 的 `FST_ERR_CTP_EMPTY_JSON_BODY`（默认 JSON parser 对"空 body + JSON content-type"直接拒绝）。现在点击 Sources 横幅的 **View** 能正常打开抽屉并检测上游状态。
+
+### CI
+
+- 新增 GitHub Actions `.github/workflows/release.yml`——push 任何 `v*` tag 时自动发布 GitHub Release，从 `CHANGELOG.md` + `CHANGELOG.zh.md` 抽取对应版本段落组合成双语 release notes；带 `-` 的 tag（如 `v0.3.0-beta.1`）自动标记为 pre-release。
+
 ## [0.2.1] — 2026-04-20
 
 ### 文档
@@ -92,6 +102,7 @@ English version: [CHANGELOG.md](CHANGELOG.md)
 - 服务端 27 测试 + shared 5 测试，文件系统集成风格
 - Ubuntu + Windows × Node 20 / 22 的 CI 矩阵
 
+[0.2.2]: https://github.com/puremixai/loom/releases/tag/v0.2.2
 [0.2.1]: https://github.com/puremixai/loom/releases/tag/v0.2.1
 [0.2.0]: https://github.com/puremixai/loom/releases/tag/v0.2.0
 [0.1.0]: https://github.com/puremixai/loom/releases/tag/v0.1.0
