@@ -1,16 +1,17 @@
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
-import { dirname, relative, sep, join } from 'node:path';
+import { dirname, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import glob from 'tiny-glob';
 import matter from 'gray-matter';
-import { SKILLS_CACHE_FILE, CENTER_DIR, type Skill } from '@skill-manager/shared';
+import { SKILLS_CACHE_FILE, type Skill } from '@skill-manager/shared';
 import { computeFingerprint } from '../utils/fingerprint.js';
 
 type SourceKind = 'user' | 'custom' | 'plugin';
 
 function classifySource(sourceRoot: string): SourceKind {
-  if (sourceRoot.endsWith(`${sep}plugins${sep}cache`) || sourceRoot.endsWith('/plugins/cache')) return 'plugin';
-  if (sourceRoot.endsWith('custom-skills')) return 'custom';
+  const normalized = sourceRoot.replace(/[\\/]+$/, '');
+  if (/[\\/]plugins[\\/]cache$/.test(normalized)) return 'plugin';
+  if (/[\\/]custom-skills$/.test(normalized)) return 'custom';
   return 'user';
 }
 

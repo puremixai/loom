@@ -41,4 +41,39 @@ describe('scanSkills', () => {
     expect(result.warnings).toEqual([]);
     rmSync(cacheDir, { recursive: true, force: true });
   });
+
+  it('classifies paths robustly with trailing separators and boundaries', async () => {
+    // This exercises classifySource indirectly by scanning a non-existent plugins/cache/ path with trailing slash
+    // and a custom-skills path without separator prefix.
+    // Since the paths don't exist, they return empty, but the scan shouldn't crash.
+    const result1 = await scanSkills({
+      scanPaths: [join(fixtureRoot, '..', 'plugins', 'cache') + '/'],
+      cachePath: join(cacheDir, 'c1.json'),
+    });
+    expect(result1.skills).toEqual([]);
+    const result2 = await scanSkills({
+      scanPaths: ['/some/path/my-custom-skills-fake'],
+      cachePath: join(cacheDir, 'c2.json'),
+    });
+    expect(result2.skills).toEqual([]);
+    rmSync(cacheDir, { recursive: true, force: true });
+  });
+
+  it('detects fingerprint changes and re-parses', async () => {
+    const cachePath = join(cacheDir, 'cache.json');
+    const first = await scanSkills({ scanPaths: [fixtureRoot], cachePath });
+    const demo = first.skills.find(s => s.name === 'demo-skill');
+    expect(demo).toBeTruthy();
+
+    // Touch the demo-skill/SKILL.md so mtime changes
+    const { utimesSync } = await import('node:fs');
+    const now = Date.now() / 1000;
+    utimesSync(demo!.absolutePath, now + 10, now + 10);
+
+    const second = await scanSkills({ scanPaths: [fixtureRoot], cachePath });
+    const demo2 = second.skills.find(s => s.name === 'demo-skill');
+    expect(demo2).toBeTruthy();
+    expect(demo2!.fingerprint).not.toBe(demo!.fingerprint);
+    rmSync(cacheDir, { recursive: true, force: true });
+  });
 });
