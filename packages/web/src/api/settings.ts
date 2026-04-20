@@ -4,6 +4,7 @@ import type { AiConfig } from '@loom/shared';
 
 interface SettingsResponse {
   scanPaths: string[];
+  userSkillsDir?: string;
   ai: Partial<AiConfig>;
 }
 
@@ -17,11 +18,15 @@ export function useSettings() {
 export function useSaveSettings() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: { scanPaths?: string[]; ai?: Partial<AiConfig> }) =>
+    mutationFn: (input: { scanPaths?: string[]; userSkillsDir?: string; ai?: Partial<AiConfig> }) =>
       apiFetch<SettingsResponse>('/api/settings', {
         method: 'PUT', body: JSON.stringify(input),
       }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['settings'] }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['settings'] });
+      qc.invalidateQueries({ queryKey: ['skills'] });
+      qc.invalidateQueries({ queryKey: ['platform'] });
+    },
   });
 }
 
