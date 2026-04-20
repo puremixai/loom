@@ -25,5 +25,8 @@ coverage/
 # TypeScript build info (incremental compile cache)
 *.tsbuildinfo
 
+# Local PR body drafts (not committed; paste into GitHub PR)
+PR_BODY.md
+
 # Claude Code session artifacts
 .claude/
