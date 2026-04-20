@@ -54,4 +54,25 @@ describe('schemas', () => {
       fingerprint: '1',
     })).toThrow();
   });
+
+  it('accepts user-local as a valid Skill source', () => {
+    const parsed = SkillSchema.parse({
+      id: 'abc123',
+      name: 'foo',
+      description: 'd',
+      source: 'user-local',
+      sourceRoot: '/tmp',
+      absolutePath: '/tmp/foo/SKILL.md',
+      skillDir: '/tmp/foo',
+      fingerprint: '1',
+    });
+    expect(parsed.source).toBe('user-local');
+  });
+
+  it('parses CenterDb with userSkillsDir', () => {
+    const db = CenterDbSchema.parse({
+      userSkillsDir: '/home/me/.loom/skills',
+    });
+    expect(db.userSkillsDir).toBe('/home/me/.loom/skills');
+  });
 });

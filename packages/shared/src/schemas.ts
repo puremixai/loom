@@ -4,7 +4,7 @@ export const SkillSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   description: z.string().min(1),
-  source: z.enum(['user', 'custom', 'plugin']),
+  source: z.enum(['user', 'custom', 'plugin', 'user-local']),
   sourceRoot: z.string().min(1),
   absolutePath: z.string().min(1),
   skillDir: z.string().min(1),
@@ -65,6 +65,7 @@ export type AiConfig = z.infer<typeof AiConfigSchema>;
 export const CenterDbSchema = z.object({
   projects: z.array(ProjectSchema).default([]),
   scanPaths: z.array(z.string()).default([]),
+  userSkillsDir: z.string().optional(),
   ai: AiConfigSchema.partial().default({}),
 });
 export type CenterDb = z.infer<typeof CenterDbSchema>;
