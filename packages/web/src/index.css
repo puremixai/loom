@@ -1,5 +1,6 @@
-/* Geist font family comes bundled via the `geist` package. We import the raw CSS. */
-@import 'geist/font.css';
+/* Geist Sans + Geist Mono via Google Fonts CDN.
+   Loaded at CSS-parse time; falls back to system fonts while loading. */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
