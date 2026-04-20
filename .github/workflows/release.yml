@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if echo "$VERSION" | grep -q -- '-'; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build release notes (EN + CN)
+        id: notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          extract() {
+            local file="$1"
+            awk -v ver="$VERSION" '
+              BEGIN { found = 0 }
+              /^## \[/ {
+                if (found) exit
+                if ($0 ~ "^## \\[" ver "\\]") { found = 1; next }
+              }
+              found { print }
+            ' "$file"
+          }
+
+          {
+            echo "## English"
+            echo
+            if [ -f CHANGELOG.md ]; then
+              EN=$(extract CHANGELOG.md | sed -e :a -e '/^$/{$d;N;ba' -e '}')
+              if [ -n "$EN" ]; then
+                echo "$EN"
+              else
+                echo "_No English changelog entry found for v${VERSION}._"
+              fi
+            else
+              echo "_CHANGELOG.md not present in repo._"
+            fi
+            echo
+            echo "## 中文"
+            echo
+            if [ -f CHANGELOG.zh.md ]; then
+              CN=$(extract CHANGELOG.zh.md | sed -e :a -e '/^$/{$d;N;ba' -e '}')
+              if [ -n "$CN" ]; then
+                echo "$CN"
+              else
+                echo "_v${VERSION} 对应条目缺失。_"
+              fi
+            else
+              echo "_CHANGELOG.zh.md 尚未建立。_"
+            fi
+            echo
+            echo "---"
+            echo
+            echo "Full changelog: [CHANGELOG.md](./CHANGELOG.md) · [CHANGELOG.zh.md](./CHANGELOG.zh.md)"
+          } > RELEASE_NOTES.md
+
+          echo "Generated release notes:"
+          echo "------------------------"
+          cat RELEASE_NOTES.md
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          make_latest: ${{ steps.version.outputs.prerelease == 'false' }}
+          fail_on_unmatched_files: false
