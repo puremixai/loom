@@ -32,7 +32,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(aiRoutes({ db, cachePath: opts.cachePath }));
   await app.register(settingsRoutes({ db }));
   await app.register(syncRoutes({ db, cachePath: opts.cachePath }));
-  await app.register(platformRoutes);
+  await app.register(platformRoutes({ db }));
 
   app.setErrorHandler((err, _req, reply) => {
     reply.status(err.statusCode ?? 500).send({

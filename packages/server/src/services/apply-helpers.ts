@@ -14,7 +14,7 @@ export function getLock(projectId: string): Mutex {
 }
 
 export async function resolveSkills(db: CenterDbStore, cachePath: string | undefined, ids: string[]): Promise<{ found: Skill[]; missing: string[] }> {
-  const { skills } = await scanSkills({ scanPaths: db.data.scanPaths, cachePath });
+  const { skills } = await scanSkills({ scanPaths: db.data.scanPaths, userSkillsDir: db.data.userSkillsDir, cachePath });
   const byId = new Map(skills.map(s => [s.id, s]));
   const found: Skill[] = [];
   const missing: string[] = [];

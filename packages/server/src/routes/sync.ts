@@ -19,7 +19,7 @@ export const syncRoutes = (deps: { db: CenterDbStore; cachePath?: string }): Fas
     const parsed = AiConfigSchema.safeParse(deps.db.data.ai);
     if (!parsed.success) { reply.status(400); return { ok: false as const, error: { code: 'AI_NOT_CONFIGURED', message: 'AI config missing' } }; }
 
-    const { skills } = await scanSkills({ scanPaths: deps.db.data.scanPaths, cachePath: deps.cachePath });
+    const { skills } = await scanSkills({ scanPaths: deps.db.data.scanPaths, userSkillsDir: deps.db.data.userSkillsDir, cachePath: deps.cachePath });
     const rec = await recommendSkills(parsed.data, {
       projectHint: rules.projectHint,
       includes: rules.includes,

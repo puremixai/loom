@@ -12,7 +12,7 @@ export const aiRoutes = (deps: { db: CenterDbStore; cachePath?: string }): Fasti
       reply.status(400);
       return { ok: false as const, error: { code: 'AI_NOT_CONFIGURED', message: 'AI endpoint/model not configured in settings.' } };
     }
-    const { skills } = await scanSkills({ scanPaths: deps.db.data.scanPaths, cachePath: deps.cachePath });
+    const { skills } = await scanSkills({ scanPaths: deps.db.data.scanPaths, userSkillsDir: deps.db.data.userSkillsDir, cachePath: deps.cachePath });
     const result = await recommendSkills(parsed.data, {
       projectHint: body.projectHint,
       includes: body.includes,
