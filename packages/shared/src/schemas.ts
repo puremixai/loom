@@ -104,3 +104,39 @@ export type ApplyRequest = z.infer<typeof ApplyRequestSchema>;
 export type UnapplyRequest = z.infer<typeof UnapplyRequestSchema>;
 export type AiRecommendRequest = z.infer<typeof AiRecommendRequestSchema>;
 export type AiRecommendResult = z.infer<typeof AiRecommendResultSchema>;
+
+export const SourceKindSchema = z.enum(['git-source', 'plugin']);
+export type SourceKind = z.infer<typeof SourceKindSchema>;
+
+export const SourceRefSchema = z.object({
+  kind: SourceKindSchema,
+  gitRoot: z.string().min(1),
+  displayName: z.string().min(1),
+  skillIds: z.array(z.string()),
+  marketplace: z.string().optional(),
+  pluginName: z.string().optional(),
+});
+export type SourceRef = z.infer<typeof SourceRefSchema>;
+
+export const UpdateStatusSchema = z.object({
+  ref: SourceRefSchema,
+  ahead: z.number().int().nonnegative(),
+  behind: z.number().int().nonnegative(),
+  dirty: z.boolean(),
+  lastFetchAt: z.string().datetime().optional(),
+  lastCommit: z.object({
+    sha: z.string(),
+    subject: z.string(),
+    author: z.string(),
+    date: z.string(),
+  }).optional(),
+  error: z.string().optional(),
+});
+export type UpdateStatus = z.infer<typeof UpdateStatusSchema>;
+
+export const PullResultSchema = z.object({
+  ok: z.boolean(),
+  output: z.string(),
+  error: z.string().optional(),
+});
+export type PullResult = z.infer<typeof PullResultSchema>;

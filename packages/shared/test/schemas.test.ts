@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { SkillSchema, ManifestSchema, CenterDbSchema } from '../src/schemas.js';
+import {
+  SkillSchema, ManifestSchema, CenterDbSchema,
+  SourceRefSchema, UpdateStatusSchema,
+} from '../src/schemas.js';
 
 describe('schemas', () => {
   it('parses a valid Skill', () => {
@@ -74,5 +77,35 @@ describe('schemas', () => {
       userSkillsDir: '/home/me/.loom/skills',
     });
     expect(db.userSkillsDir).toBe('/home/me/.loom/skills');
+  });
+
+  it('parses a valid SourceRef', () => {
+    const r = SourceRefSchema.parse({
+      kind: 'git-source',
+      gitRoot: '/home/me/.loom/skills/my-custom',
+      displayName: 'my-custom',
+      skillIds: ['abc', 'def'],
+    });
+    expect(r.kind).toBe('git-source');
+  });
+
+  it('parses a plugin SourceRef with marketplace and pluginName', () => {
+    const r = SourceRefSchema.parse({
+      kind: 'plugin',
+      gitRoot: '/cache/foo',
+      displayName: 'market-a/plugin-x',
+      skillIds: ['id1'],
+      marketplace: 'market-a',
+      pluginName: 'market-a/plugin-x',
+    });
+    expect(r.pluginName).toBe('market-a/plugin-x');
+  });
+
+  it('parses an UpdateStatus with zero defaults', () => {
+    const s = UpdateStatusSchema.parse({
+      ref: { kind: 'git-source', gitRoot: '/g', displayName: 'g', skillIds: [] },
+      ahead: 0, behind: 0, dirty: false,
+    });
+    expect(s.dirty).toBe(false);
   });
 });
