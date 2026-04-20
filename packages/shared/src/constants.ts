@@ -14,6 +14,8 @@ export const DEFAULT_SCAN_PATHS = [
   join(homedir(), '.claude', 'plugins', 'cache'),
 ];
 
+export const DEFAULT_USER_SKILLS_DIR = join(homedir(), '.loom', 'skills');
+
 export const PROJECT_CLAUDE_DIR = '.claude';
 export const PROJECT_SKILLS_DIR = '.claude/skills';
 export const MANIFEST_FILENAME = 'loom.json';

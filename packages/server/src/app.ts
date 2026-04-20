@@ -7,9 +7,12 @@ import { projectsRoutes } from './routes/projects.js';
 import { aiRoutes } from './routes/ai.js';
 import { settingsRoutes } from './routes/settings.js';
 import { syncRoutes } from './routes/sync.js';
+import { sourcesRoutes } from './routes/sources.js';
 import { platformRoutes } from './routes/platform.js';
+import { userSkillsDirRoutes } from './routes/user-skills-dir.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
 import { resolveWebDist } from './utils/static.js';
+import { ensureUserSkillsDir } from './services/user-dir.js';
 
 export interface BuildOptions {
   logger?: boolean;
@@ -23,14 +26,17 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(cors, { origin: /^http:\/\/(127\.0\.0\.1|localhost):\d+$/ });
 
   const db = opts.db ?? await openCenterDb(opts.dbFile);
+  await ensureUserSkillsDir(db);
 
   await app.register(healthRoutes);
   await app.register(skillsRoutes({ db, cachePath: opts.cachePath }));
   await app.register(projectsRoutes({ db, cachePath: opts.cachePath }));
   await app.register(aiRoutes({ db, cachePath: opts.cachePath }));
   await app.register(settingsRoutes({ db }));
+  await app.register(userSkillsDirRoutes({ db }));
   await app.register(syncRoutes({ db, cachePath: opts.cachePath }));
-  await app.register(platformRoutes);
+  await app.register(sourcesRoutes({ db, cachePath: opts.cachePath }));
+  await app.register(platformRoutes({ db }));
 
   app.setErrorHandler((err, _req, reply) => {
     reply.status(err.statusCode ?? 500).send({

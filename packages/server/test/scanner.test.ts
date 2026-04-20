@@ -76,4 +76,17 @@ describe('scanSkills', () => {
     expect(demo2!.fingerprint).not.toBe(demo!.fingerprint);
     rmSync(cacheDir, { recursive: true, force: true });
   });
+
+  it('classifies skills under userSkillsDir as source=user-local', async () => {
+    const userLocalRoot = join(here, 'fixtures', 'fake-user-local');
+    const result = await scanSkills({
+      scanPaths: [],
+      userSkillsDir: userLocalRoot,
+      cachePath: join(cacheDir, 'c.json'),
+    });
+    expect(result.skills).toHaveLength(1);
+    expect(result.skills[0]!.name).toBe('my-user-skill');
+    expect(result.skills[0]!.source).toBe('user-local');
+    rmSync(cacheDir, { recursive: true, force: true });
+  });
 });

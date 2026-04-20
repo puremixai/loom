@@ -7,10 +7,11 @@ import { SKILLS_CACHE_FILE, type Skill } from '@loom/shared';
 import { computeFingerprint } from '../utils/fingerprint.js';
 import { atomicWriteFile } from '../utils/fs-safe.js';
 
-type SourceKind = 'user' | 'custom' | 'plugin';
+type SourceKind = 'user' | 'custom' | 'plugin' | 'user-local';
 
-function classifySource(sourceRoot: string): SourceKind {
+function classifySource(sourceRoot: string, userSkillsDir?: string): SourceKind {
   const normalized = sourceRoot.replace(/[\\/]+$/, '');
+  if (userSkillsDir && normalized === userSkillsDir.replace(/[\\/]+$/, '')) return 'user-local';
   if (/[\\/]plugins[\\/]cache$/.test(normalized)) return 'plugin';
   if (/[\\/]custom-skills$/.test(normalized)) return 'custom';
   return 'user';
@@ -34,6 +35,7 @@ export interface ScanResult {
 
 export interface ScanOptions {
   scanPaths: string[];
+  userSkillsDir?: string;
   cachePath?: string;
   forceRefresh?: boolean;
 }
@@ -64,10 +66,14 @@ export async function scanSkills(opts: ScanOptions): Promise<ScanResult> {
   const warnings: string[] = [];
   const skills: Skill[] = [];
 
-  for (const sourceRoot of opts.scanPaths) {
+  const mergedScanPaths = opts.userSkillsDir
+    ? [opts.userSkillsDir, ...opts.scanPaths.filter(p => p !== opts.userSkillsDir)]
+    : opts.scanPaths;
+
+  for (const sourceRoot of mergedScanPaths) {
     if (!(await pathExists(sourceRoot))) continue;
     const matches = await glob('**/SKILL.md', { cwd: sourceRoot, absolute: true, filesOnly: true });
-    const source = classifySource(sourceRoot);
+    const source = classifySource(sourceRoot, opts.userSkillsDir);
 
     for (const absPath of matches) {
       const fp = await computeFingerprint(absPath);

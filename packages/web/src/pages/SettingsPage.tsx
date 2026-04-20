@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { UserSkillsDirCard } from '@/components/UserSkillsDirCard';
 
 export function SettingsPage() {
   const { data: settings } = useSettings();
@@ -134,6 +135,8 @@ export function SettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      <UserSkillsDirCard />
 
       <Card>
         <CardHeader>

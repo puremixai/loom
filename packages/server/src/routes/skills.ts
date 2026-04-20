@@ -12,6 +12,7 @@ export const skillsRoutes = (deps: SkillsRoutesDeps): FastifyPluginAsync => asyn
     const forceRefresh = req.query.refresh === '1';
     const { skills, warnings } = await scanSkills({
       scanPaths: deps.db.data.scanPaths,
+      userSkillsDir: deps.db.data.userSkillsDir,
       cachePath: deps.cachePath,
       forceRefresh,
     });
@@ -21,6 +22,7 @@ export const skillsRoutes = (deps: SkillsRoutesDeps): FastifyPluginAsync => asyn
   app.get<{ Params: { id: string } }>('/api/skills/:id', async (req, reply) => {
     const { skills } = await scanSkills({
       scanPaths: deps.db.data.scanPaths,
+      userSkillsDir: deps.db.data.userSkillsDir,
       cachePath: deps.cachePath,
     });
     const skill = skills.find(s => s.id === req.params.id);
