@@ -4,6 +4,12 @@ All notable changes to **Loom** are documented here. Format loosely follows [Kee
 
 中文版: [CHANGELOG.zh.md](CHANGELOG.zh.md)
 
+## [0.2.3] — 2026-04-20
+
+### Enhancements
+
+- **Settings page left-nav**: new sticky sidebar lists the four sections (AI configuration, User skills directory, Scan paths, Platform); clicking smoothly scrolls to the matching card, and the current section is auto-highlighted via `IntersectionObserver` as you scroll. Hidden on `<768px` viewports.
+
 ## [0.2.2] — 2026-04-20
 
 ### Fixes
@@ -102,6 +108,7 @@ Initial MVP release.
 - 27 server tests + 5 shared-schema tests, filesystem-integration style
 - CI on Ubuntu + Windows × Node 20 / 22
 
+[0.2.3]: https://github.com/puremixai/loom/releases/tag/v0.2.3
 [0.2.2]: https://github.com/puremixai/loom/releases/tag/v0.2.2
 [0.2.1]: https://github.com/puremixai/loom/releases/tag/v0.2.1
 [0.2.0]: https://github.com/puremixai/loom/releases/tag/v0.2.0

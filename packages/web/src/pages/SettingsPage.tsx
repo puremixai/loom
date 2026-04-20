@@ -6,6 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { UserSkillsDirCard } from '@/components/UserSkillsDirCard';
+import { SettingsNav } from '@/components/SettingsNav';
+
+const SETTINGS_SECTIONS = [
+  { id: 'ai-config', label: 'AI configuration' },
+  { id: 'user-skills-dir', label: 'User skills directory' },
+  { id: 'scan-paths', label: 'Scan paths' },
+  { id: 'platform', label: 'Platform' },
+];
 
 export function SettingsPage() {
   const { data: settings } = useSettings();
@@ -55,7 +63,12 @@ export function SettingsPage() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="flex gap-8">
+      <aside className="hidden md:block">
+        <SettingsNav items={SETTINGS_SECTIONS} />
+      </aside>
+
+      <div className="flex-1 space-y-8">
       <div>
         <h1 className="font-semibold leading-tight tracking-heading text-ink-900" style={{ fontSize: '32px' }}>
           Settings
@@ -65,6 +78,7 @@ export function SettingsPage() {
         </p>
       </div>
 
+      <section id="ai-config" className="scroll-mt-24">
       <Card>
         <CardHeader>
           <CardTitle>AI configuration</CardTitle>
@@ -135,9 +149,13 @@ export function SettingsPage() {
           )}
         </CardContent>
       </Card>
+      </section>
 
-      <UserSkillsDirCard />
+      <section id="user-skills-dir" className="scroll-mt-24">
+        <UserSkillsDirCard />
+      </section>
 
+      <section id="scan-paths" className="scroll-mt-24">
       <Card>
         <CardHeader>
           <CardTitle>Scan paths</CardTitle>
@@ -150,7 +168,9 @@ export function SettingsPage() {
           />
         </CardContent>
       </Card>
+      </section>
 
+      <section id="platform" className="scroll-mt-24">
       <Card>
         <CardHeader>
           <CardTitle>Platform</CardTitle>
@@ -168,6 +188,8 @@ export function SettingsPage() {
           ) : <p className="text-sm text-ink-500">Loading…</p>}
         </CardContent>
       </Card>
+      </section>
+      </div>
     </div>
   );
 }

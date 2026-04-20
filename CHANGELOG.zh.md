@@ -4,6 +4,12 @@
 
 English version: [CHANGELOG.md](CHANGELOG.md)
 
+## [0.2.3] — 2026-04-20
+
+### 增强
+
+- **Settings 页左侧导航**：新增 sticky 侧栏，列出 4 个分区（AI configuration / User skills directory / Scan paths / Platform）；点击平滑滚动到对应卡片，当前所在分区通过 `IntersectionObserver` 自动高亮。窄屏 `<768px` 时侧栏隐藏。
+
 ## [0.2.2] — 2026-04-20
 
 ### 修复
@@ -102,6 +108,7 @@ English version: [CHANGELOG.md](CHANGELOG.md)
 - 服务端 27 测试 + shared 5 测试，文件系统集成风格
 - Ubuntu + Windows × Node 20 / 22 的 CI 矩阵
 
+[0.2.3]: https://github.com/puremixai/loom/releases/tag/v0.2.3
 [0.2.2]: https://github.com/puremixai/loom/releases/tag/v0.2.2
 [0.2.1]: https://github.com/puremixai/loom/releases/tag/v0.2.1
 [0.2.0]: https://github.com/puremixai/loom/releases/tag/v0.2.0
