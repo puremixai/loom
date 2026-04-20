@@ -27,4 +27,11 @@ export const projectsRoutes = (deps: { db: CenterDbStore }): FastifyPluginAsync 
     await svc.remove(req.params.id);
     return { ok: true as const, data: { id: req.params.id } };
   });
+
+  app.get<{ Params: { id: string } }>('/api/projects/:id/manifest', async (req, reply) => {
+    const project = await svc.get(req.params.id);
+    if (!project) { reply.status(404); return { ok: false as const, error: { code: 'NOT_FOUND', message: 'Project not found' } }; }
+    const manifest = await (await import('../services/manifest.js')).readManifest(project.path);
+    return { ok: true as const, data: { manifest } };
+  });
 };
