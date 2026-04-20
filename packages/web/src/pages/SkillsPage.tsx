@@ -5,6 +5,7 @@ import { SkillTree } from '@/components/SkillTree';
 import { SkillCard } from '@/components/SkillCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { SourceUpdatesBanner } from '@/components/SourceUpdatesBanner';
 import type { Skill } from '@loom/shared';
 
 export function SkillsPage() {
@@ -48,6 +49,8 @@ export function SkillsPage() {
             </Button>
           </div>
         </div>
+
+        <SourceUpdatesBanner />
 
         {isLoading && <p className="text-sm text-ink-500">Loading…</p>}
 
