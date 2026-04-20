@@ -10,6 +10,7 @@ import { syncRoutes } from './routes/sync.js';
 import { platformRoutes } from './routes/platform.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
 import { resolveWebDist } from './utils/static.js';
+import { ensureUserSkillsDir } from './services/user-dir.js';
 
 export interface BuildOptions {
   logger?: boolean;
@@ -23,6 +24,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(cors, { origin: /^http:\/\/(127\.0\.0\.1|localhost):\d+$/ });
 
   const db = opts.db ?? await openCenterDb(opts.dbFile);
+  await ensureUserSkillsDir(db);
 
   await app.register(healthRoutes);
   await app.register(skillsRoutes({ db, cachePath: opts.cachePath }));
