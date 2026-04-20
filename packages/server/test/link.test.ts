@@ -83,4 +83,61 @@ describe('link engine', () => {
       currentManifest: null,
     })).rejects.toThrow(/not managed/);
   });
+
+  it('unapply refuses to delete a non-link at a managed path', async () => {
+    const skillDir = join(skillRoot, 'alpha');
+    mkdirSync(skillDir);
+    writeFileSync(join(skillDir, 'SKILL.md'), '---\nname: alpha\ndescription: d\n---\n');
+
+    const projectPath = join(work, 'proj');
+    mkdirSync(projectPath);
+    const applied = await applySkills({
+      projectPath,
+      desiredSkills: [makeSkill('id1', 'alpha', skillDir)],
+      currentManifest: null,
+    });
+
+    // Only proceed with this test if the method was NOT copy — because in copy mode
+    // the target is a real directory and we'd legitimately remove it.
+    if (applied.method === 'copy') return;
+
+    const linked = join(projectPath, '.claude', 'skills', 'alpha');
+    // Replace the link with a real directory containing user data
+    const { rm } = await import('node:fs/promises');
+    await rm(linked, { recursive: true, force: true });
+    mkdirSync(linked, { recursive: true });
+    writeFileSync(join(linked, 'USER-DATA.md'), 'do not destroy');
+
+    const result = await unapplySkills({ projectPath, manifest: applied.manifest });
+    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.warnings[0]).toContain('expected link but found real directory');
+    // User data preserved
+    const userDataStat = await stat(join(linked, 'USER-DATA.md'));
+    expect(userDataStat.isFile()).toBe(true);
+  });
+
+  it('unapply with copy method removes real directories', async () => {
+    // Simulate a copy-mode manifest by calling unapplySkills with method='copy' and a real dir
+    const skillDir = join(skillRoot, 'beta');
+    mkdirSync(skillDir);
+    writeFileSync(join(skillDir, 'SKILL.md'), '---\nname: beta\ndescription: d\n---\n');
+
+    const projectPath = join(work, 'proj2');
+    mkdirSync(projectPath);
+    const targetDir = join(projectPath, '.claude', 'skills', 'beta');
+    mkdirSync(targetDir, { recursive: true });
+    writeFileSync(join(targetDir, 'copied.md'), 'copy content');
+
+    const fakeManifest: Manifest = {
+      version: 1,
+      tool: 'skill-manager',
+      appliedAt: new Date().toISOString(),
+      method: 'copy',
+      skills: [{ id: 'id-b', name: 'beta', sourceDir: skillDir, linkedAs: '.claude/skills/beta' }],
+    };
+
+    const result = await unapplySkills({ projectPath, manifest: fakeManifest });
+    expect(result.warnings).toEqual([]);
+    await expect(stat(targetDir)).rejects.toThrow();
+  });
 });

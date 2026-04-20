@@ -8,7 +8,15 @@ export async function exists(p: string): Promise<boolean> {
 export async function isSymlinkOrJunction(p: string): Promise<boolean> {
   try {
     const s = await lstat(p);
-    return s.isSymbolicLink();
+    if (s.isSymbolicLink()) return true;
+    // On some Windows configurations, junctions may not test as symbolic links.
+    // Fall back: attempt readlink — succeeds only on reparse points (junctions + symlinks).
+    try {
+      await readlink(p);
+      return true;
+    } catch {
+      return false;
+    }
   } catch { return false; }
 }
 

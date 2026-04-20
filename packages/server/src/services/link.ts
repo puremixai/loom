@@ -151,15 +151,28 @@ export async function unapplySkills(opts: {
   projectPath: string;
   manifest: Manifest;
   skillIds?: string[];
-}): Promise<{ removed: ManifestEntry[]; remaining: Manifest }> {
+}): Promise<{ removed: ManifestEntry[]; remaining: Manifest; warnings: string[] }> {
   const targetIds = opts.skillIds ? new Set(opts.skillIds) : null;
   const removed: ManifestEntry[] = [];
   const remaining: ManifestEntry[] = [];
+  const warnings: string[] = [];
 
   for (const entry of opts.manifest.skills) {
     if (!targetIds || targetIds.has(entry.id)) {
       const abs = join(opts.projectPath, entry.linkedAs);
-      if (await exists(abs)) await removePath(abs);
+      if (await exists(abs)) {
+        if (await isSymlinkOrJunction(abs)) {
+          await removePath(abs);
+        } else if (opts.manifest.method === 'copy') {
+          // copy-mode manifests intentionally store real directories; safe to remove
+          await removePath(abs);
+        } else {
+          // non-link at a linked path — user likely replaced it manually; refuse
+          warnings.push(`Skipped ${abs}: expected link but found real directory; remove manually if intended`);
+          remaining.push(entry);
+          continue;
+        }
+      }
       removed.push(entry);
     } else {
       remaining.push(entry);
@@ -178,11 +191,12 @@ export async function unapplySkills(opts: {
       skills: remaining,
     });
     await atomicWriteFile(manifestPath, JSON.stringify(newManifest, null, 2));
-    return { removed, remaining: newManifest };
+    return { removed, remaining: newManifest, warnings };
   }
 
   return {
     removed,
     remaining: { ...opts.manifest, skills: [] },
+    warnings,
   };
 }
