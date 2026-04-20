@@ -33,4 +33,18 @@ describe('center db', () => {
       expect(db2.data.projects[0]!.name).toBe('demo');
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
+
+  it('rejects malformed JSON with file path in error', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'sm-'));
+    try {
+      const { writeFileSync } = await import('node:fs');
+      const file = join(dir, 'db.json');
+      writeFileSync(file, '{not json', 'utf8');
+      let caught: Error | null = null;
+      try { await openCenterDb(file); } catch (e) { caught = e as Error; }
+      expect(caught).not.toBeNull();
+      expect(caught!.message).toContain('Failed to read center db');
+      expect(caught!.message).toContain(file);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
 });

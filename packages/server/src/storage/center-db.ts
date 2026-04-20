@@ -21,8 +21,16 @@ export async function openCenterDb(filePath = CENTER_DB_FILE): Promise<CenterDbS
   await mkdir(dirname(filePath), { recursive: true });
   const adapter = new JSONFile<CenterDb>(filePath);
   const db = new Low<CenterDb>(adapter, DEFAULTS);
-  await db.read();
-  db.data = CenterDbSchema.parse(db.data);
+  try {
+    await db.read();
+  } catch (err) {
+    throw new Error(`Failed to read center db at ${filePath}: ${(err as Error).message}`, { cause: err });
+  }
+  try {
+    db.data = CenterDbSchema.parse(db.data);
+  } catch (err) {
+    throw new Error(`Center db at ${filePath} has invalid schema: ${(err as Error).message}`, { cause: err });
+  }
   if (db.data.scanPaths.length === 0) db.data.scanPaths = [...DEFAULT_SCAN_PATHS];
   await db.write();
   return db;
