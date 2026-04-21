@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { LoomLogo } from '@/components/ui/loom-icon';
 
 export function ProjectsPage() {
   const { data, isLoading } = useProjects();
@@ -69,6 +70,9 @@ export function ProjectsPage() {
 
       {data?.length === 0 && !isLoading && (
         <div className="rounded-lg bg-white py-16 text-center shadow-border">
+          <div className="flex justify-center mb-5">
+            <LoomLogo size="lg" />
+          </div>
           <p className="text-base text-ink-900">No projects registered yet</p>
           <p className="mt-1 text-sm text-ink-500">Click "Add Project" above to get started.</p>
         </div>
