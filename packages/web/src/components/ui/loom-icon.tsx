@@ -12,13 +12,13 @@ const SCALE = {
   xs: { icon: 16, fontSize: 0,  letterSpacing: '',          gap: 0  },
 } as const;
 
-const STROKE: Record<number, number> = {
+const STROKE = {
   48: 2.0,
   36: 2.2,
   24: 2.4,
   20: 2.6,
   16: 3.0,
-};
+} as const;
 
 type LoomIconSize = keyof typeof STROKE; // 48 | 36 | 24 | 20 | 16
 
