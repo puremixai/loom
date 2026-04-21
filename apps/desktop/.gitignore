@@ -1,0 +1,10 @@
+# Tauri build output
+src-tauri/target/
+src-tauri/gen/
+
+# Bundled sidecar binaries (built by scripts/build-sidecar.mjs)
+src-tauri/resources/loom-server-*
+!src-tauri/resources/.gitkeep
+
+# Rust incremental compile cache
+src-tauri/Cargo.lock.bak

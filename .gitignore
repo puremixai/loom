@@ -30,3 +30,8 @@ PR_BODY.md
 
 # Claude Code session artifacts
 .claude/
+
+# Tauri desktop build output
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+apps/desktop/src-tauri/resources/loom-server-*

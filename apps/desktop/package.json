@@ -1,0 +1,15 @@
+{
+  "name": "@loom/desktop",
+  "version": "0.2.3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "desktop:build": "pnpm run sidecar:build && tauri build",
+    "sidecar:build": "node scripts/build-sidecar.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.0.0",
+    "@yao-pkg/pkg": "6.0.0"
+  }
+}
