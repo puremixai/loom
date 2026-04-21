@@ -1,23 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "identifier": "default",
-  "description": "Loom desktop core capabilities",
+  "description": "Loom desktop capabilities — minimum set. The webview only talks to the sidecar over HTTP, so no frontend-initiated Tauri IPC is needed; plugin defaults cover the rare cases where plugin internals check capabilities.",
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "core:window:allow-show",
-    "core:window:allow-hide",
-    "core:window:allow-close",
-    "core:window:allow-set-focus",
-    "core:window:allow-is-visible",
-    "core:webview:allow-navigate",
     "shell:default",
-    "shell:allow-execute",
-    "shell:allow-kill",
-    "shell:allow-spawn",
     "dialog:default",
-    "dialog:allow-open",
-    "dialog:allow-message",
     "log:default"
   ]
 }
