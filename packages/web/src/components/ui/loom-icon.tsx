@@ -20,7 +20,7 @@ const STROKE = {
   16: 3.0,
 } as const;
 
-type LoomIconSize = keyof typeof STROKE; // 48 | 36 | 24 | 20 | 16
+export type LoomIconSize = keyof typeof STROKE; // 48 | 36 | 24 | 20 | 16
 
 export type LoomLogoSize = keyof typeof SCALE;
 
@@ -77,7 +77,7 @@ export function LoomLogo({ size, className }: LoomLogoProps) {
     <div className={cn('flex items-center', className)} style={{ gap }}>
       <LoomIcon size={icon} />
       {fontSize > 0 && (
-        <span style={{ fontSize, fontWeight: 600, letterSpacing, lineHeight: 1, color: COLOR_WARP }}>
+        <span className="font-semibold" style={{ fontSize, letterSpacing, lineHeight: 1, color: COLOR_WARP }}>
           loom
         </span>
       )}
