@@ -3,6 +3,7 @@ import { SkillsPage } from './pages/SkillsPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { LoomLogo } from './components/ui/loom-icon';
 import { cn } from '@/lib/utils';
 
 function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
@@ -29,8 +30,8 @@ export default function App() {
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur shadow-[inset_0_-1px_0_rgba(0,0,0,0.08)]">
           <div className="mx-auto flex h-14 max-w-content items-center justify-between px-6">
             <div className="flex items-center gap-8">
-              <NavLink to="/" className="font-mono text-xs font-medium uppercase tracking-tight text-ink-900">
-                Loom
+              <NavLink to="/" className="flex items-center" aria-label="loom – go to projects">
+                <LoomLogo size="sm" />
               </NavLink>
               <nav className="flex items-center gap-5">
                 <NavItem to="/">Projects</NavItem>
