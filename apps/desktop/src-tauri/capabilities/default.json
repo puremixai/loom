@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "default",
+  "description": "Loom desktop core capabilities",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-close",
+    "core:window:allow-set-focus",
+    "core:window:allow-is-visible",
+    "core:webview:allow-navigate",
+    "shell:default",
+    "shell:allow-execute",
+    "shell:allow-kill",
+    "shell:allow-spawn",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-message",
+    "log:default"
+  ]
+}
