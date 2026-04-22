@@ -4,6 +4,24 @@
 
 English version: [CHANGELOG.md](CHANGELOG.md)
 
+## [0.5.0] — 2026-04-22
+
+### 新功能
+
+- 📁 **添加项目 / 设置用户技能目录 支持弹出目录选择框**。新增 `GET /api/fs/browse` 接口让前端枚举任意绝对路径下的子目录；新组件 [`DirectoryPicker`](packages/web/src/components/DirectoryPicker.tsx) 提供 主目录 / 根目录 快速跳转、路径面包屑、键盘输入跳转、点击或双击下钻。Web 版和 Tauri 桌面版用同一套实现（两者都通过 HTTP 加载 SPA，不需要给桌面开 Tauri IPC——保留单源 HTTP 模型）。
+  - Windows 用 `statSync` 遍历 `A:\..Z:\` 做盘符选择器，POSIX 从 `/` 开始。
+  - `~`、`~/foo` 自动扩展到 `homedir()`。
+  - 默认过滤隐藏项（`.` 开头），只返回子目录。
+  - 错误统一成 `{ok:false, error:{code, message}}` 包络：`NOT_FOUND`（404）、`NOT_A_DIRECTORY` / `INVALID_PATH`（400）、`PERMISSION_DENIED`（403）。
+
+### 修复
+
+- 🐛 **所有路由的抛错现在都返回标准 `{ok:false, error:{code, message}}` 包络**。Fastify 5 插件作用域会在注册时锁定父层的 error handler——之前 `setErrorHandler` 是在所有路由注册**之后**调用的，结果任何抛出的错误都走的是 Fastify 默认 `{statusCode, code, error: "…"}` 格式。现在把 `setErrorHandler` 搬到路由注册之前，既存路由（如 projects 添加/删除的路径错误）也顺带修复了包络。
+
+### 测试
+
+- 🧪 **新增 8 个 vitest 用例**覆盖 `/api/fs/browse`，基于真实 `os.tmpdir()` fixture：列目录/排序、嵌套、不存在（404）、不是目录（400）、相对路径（400）、`~` 扩展、平台根目录、Windows 盘符根的 parent 语义。服务端测试总数 14 文件 / 61 用例，全绿。
+
 ## [0.4.0] — 2026-04-22
 
 ### 新功能

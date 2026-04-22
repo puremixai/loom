@@ -4,6 +4,24 @@ All notable changes to **Loom** are documented here. Format loosely follows [Kee
 
 中文版: [CHANGELOG.zh.md](CHANGELOG.zh.md)
 
+## [0.5.0] — 2026-04-22
+
+### Features
+
+- 📁 **Directory picker dialog** for "Add Project" and "User skills directory". A new `GET /api/fs/browse` endpoint lets the web UI enumerate sub-directories of any absolute path; the front-end [`DirectoryPicker`](packages/web/src/components/DirectoryPicker.tsx) modal exposes Home / Drives quick-jump, breadcrumbs, keyboard path entry, and a click-to-descend folder list. Works identically in the web version and the Tauri desktop (both load the SPA via HTTP, so no Tauri IPC is needed — single-origin model preserved).
+  - Windows drive-letter picker enumerates `A:\..Z:\` via `statSync`; POSIX starts at `/`.
+  - `~`, `~/foo` paths expand to `homedir()`.
+  - Hidden entries (starting with `.`) filtered by default; only sub-directories are returned.
+  - Errors normalize to `{ok:false, error:{code, message}}` envelope: `NOT_FOUND` (404), `NOT_A_DIRECTORY` / `INVALID_PATH` (400), `PERMISSION_DENIED` (403).
+
+### Fixes
+
+- 🐛 **Thrown errors from any route now return the standard `{ok:false, error:{code, message}}` envelope.** Fastify 5 plugin scopes snapshot the parent's error handler at register time, so the `setErrorHandler` previously registered after routes never ran on thrown errors — they leaked the default `{statusCode, code, error: "…"}` shape. Moving it to before route registration fixes the envelope for existing routes (projects add/remove path errors, etc.) too.
+
+### Tests
+
+- 🧪 **8 new vitest cases** for `/api/fs/browse` against real `os.tmpdir()` fixtures (listing/sort, nested, non-existent, file-not-dir, relative path, `~` expansion, platform-root, Windows drive-root parent semantics). Server suite now 14 files / 61 tests, all green.
+
 ## [0.4.0] — 2026-04-22
 
 ### Features
