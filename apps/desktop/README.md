@@ -73,9 +73,12 @@ The web SPA is shipped separately as a Tauri resource (`bundle.resources` maps `
 
 ## Release
 
-Push a `v*-desktop` tag (e.g. `v0.2.3-desktop`). The workflow at [`.github/workflows/desktop-release.yml`](../../.github/workflows/desktop-release.yml) runs on `windows-2022`, builds installers, and attaches them to the corresponding GitHub Release.
+Push a `v*` tag (e.g. `v0.3.0`). Both workflows fire:
 
-Regular `v*` tags continue to trigger `.github/workflows/release.yml` (library/server/web changelog-only release). The desktop workflow's `-desktop` suffix avoids the two jobs racing on the same tag.
+- [`.github/workflows/desktop-release.yml`](../../.github/workflows/desktop-release.yml) runs on `windows-2022`, builds the MSI + NSIS installers, and attaches them to the GitHub Release.
+- [`.github/workflows/release.yml`](../../.github/workflows/release.yml) runs on `ubuntu-latest`, extracts the matching `[VERSION]` section from both `CHANGELOG.md` and `CHANGELOG.zh.md`, and publishes bilingual release notes.
+
+Because both actions target the same tag via `softprops/action-gh-release`, they contribute their own assets/notes to the same Release in GitHub. Run order doesn't matter.
 
 ## Known limitations (v1)
 

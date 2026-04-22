@@ -1,6 +1,6 @@
 [package]
 name = "loom-desktop"
-version = "0.2.3"
+version = "0.3.0"
 description = "Loom — weave Claude Code skills into every project"
 authors = ["puremixai"]
 license = "MIT"

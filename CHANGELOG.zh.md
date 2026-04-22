@@ -4,25 +4,33 @@
 
 English version: [CHANGELOG.md](CHANGELOG.md)
 
-## [0.2.3-desktop] — 2026-04-22
+## [0.3.0] — 2026-04-22
 
-### 新增
+### 新功能
 
-- **桌面应用（Tauri 2）首版发布**。Windows `.msi` 与 NSIS `.exe` 安装包，内嵌 Node 22 SEA 打包的 Fastify sidecar。核心体验与 Web 版完全一致；`packages/shared|server|web` **零代码修改**（仅在 [`packages/server/src/utils/static.ts`](packages/server/src/utils/static.ts) 新增了一条 `LOOM_WEB_DIST` 环境变量回退逻辑，让 Tauri 能把 SPA 资源路径下发给 sidecar）。桌面相关的源码全部位于 `apps/desktop/`。
-- **系统托盘** 6 项菜单：Show Loom · Add Project… · Change user skills dir… · About · Quit。左键托盘在「显示/隐藏窗口」间切换；Add Project / Change user skills dir 调起 Windows 原生文件夹选择框，Rust 直接向 sidecar REST API 发请求（不给前端开 IPC 面，保留单源 HTTP 模型）。
-- **关窗到托盘**：点窗口 X 只隐藏窗口，只有托盘 **Quit** 才退出进程。
-- **退出时优雅清理 sidecar**：监听 `RunEvent::ExitRequested`，在 Tauri 拆除前先杀掉 `loom-server.exe`，避免孤儿 Node 进程残留在任务管理器里。
+- **桌面应用（Tauri 2，`apps/desktop/`）首版发布**，Windows `.msi` 与 NSIS `.exe` 安装包。Rust 壳 + Node 22 SEA 打包的 Fastify sidecar，包裹现有 Fastify + React SPA。系统托盘（Show · Add Project… · Change user skills dir… · About · Quit）、左键托盘在「显示/隐藏窗口」间切换、关窗到托盘、退出时监听 `RunEvent::ExitRequested` 优雅清理 sidecar。`packages/shared|server|web` **零代码修改**（唯一一处 additive 改动：[`packages/server/src/utils/static.ts`](packages/server/src/utils/static.ts) 新增 `LOOM_WEB_DIST` 环境变量 fallback，让 Tauri 能把 SPA 资源路径下发给 sidecar）。完整设计见 [`docs/superpowers/specs/2026-04-21-desktop-tauri-design.md`](docs/superpowers/specs/2026-04-21-desktop-tauri-design.md)。
+- **LoomIcon + LoomLogo 组件** ([`packages/web/src/components/ui/loom-icon.tsx`](packages/web/src/components/ui/loom-icon.tsx))：通用的织机图标 SVG 和 wordmark，尺寸通过字面量联合类型约束（`xs | sm | md | lg | xl`）。替代原来的纯文字 nav logo，同时在 Projects 空状态也有使用。
+- **SVG favicon** ([`packages/web/public/favicon.svg`](packages/web/public/favicon.svg))，与织机图标风格一致。
+
+### 修复
+
+- `LoomIconSize` 类型现在正确导出，并通过 STROKE 表上的 `as const` 收敛成字面量联合（之前会退化成 `number`）。
+- Nav wordmark 字重统一为 `font-semibold`（600），符合设计系统 3 种字重的约定。
+
+### 重构
+
+- LoomIcon 的颜色抽取成共享 `STROKE` 常量表；size 类型收敛为字面量联合。
+
+### 文档
+
+- Loom logo + typography 设计规范（[`docs/superpowers/specs/2026-04-20-logo-design.md`](docs/superpowers/specs/2026-04-20-logo-design.md)）与对应实现计划。
+- Tauri 桌面 v1 完整设计规范 + 17-task 实现计划（[`docs/superpowers/specs/2026-04-21-desktop-tauri-design.md`](docs/superpowers/specs/2026-04-21-desktop-tauri-design.md) / [`docs/superpowers/plans/2026-04-21-desktop-tauri-implementation.md`](docs/superpowers/plans/2026-04-21-desktop-tauri-implementation.md)）。
+- [`apps/desktop/README.md`](apps/desktop/README.md) 展开为完整文档，涵盖架构图、SEA sidecar 内部细节、开发/生产/发布流程、v1 已知限制。
 
 ### CI
 
-- 新增 [`.github/workflows/desktop-release.yml`](.github/workflows/desktop-release.yml)：推送 `v*-desktop` tag 时自动构建并挂载桌面 installer。v1 只跑 windows-2022 runner；macOS / Linux 的 matrix 项已预留，等那两个平台验证通过后开启。
-- [`release.yml`](.github/workflows/release.yml) 对 `-desktop` 后缀 tag 直接跳过，避免两条 workflow 在同一个 release 上互相覆盖 prerelease flag。
-
-### 架构说明
-
-- sidecar 打包走 Node 22 SEA + `postject`（没用 `pkg`，`pkg` 不支持 Node 22 也不支持 ESM）。流水线：esbuild 打包 → CJS SEA wrapper → blob → 注入 Node.exe 副本。
-- Tauri 把 `packages/web/dist` 作为 `web-dist/` 资源打包；Rust 侧通过 `app.path().resource_dir()` 解析路径，用 `LOOM_WEB_DIST` 环境变量传给 sidecar。
-- 完整设计见 [`docs/superpowers/specs/2026-04-21-desktop-tauri-design.md`](docs/superpowers/specs/2026-04-21-desktop-tauri-design.md)。
+- [`.github/workflows/desktop-release.yml`](.github/workflows/desktop-release.yml)：`v*` tag 推送时构建并挂载 Windows MSI + NSIS installer。v1 只跑 windows-2022 runner；macOS / Linux matrix 项已预留。Rust + pnpm 缓存保证冷启动 < 10 min。
+- [`release.yml`](.github/workflows/release.yml) 继续负责 changelog-based GitHub Release notes 生成；两条 workflow 给同一个 Release 各自挂 assets。
 
 ## [0.2.3] — 2026-04-20
 
