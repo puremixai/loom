@@ -69,6 +69,15 @@ fn main() {
             });
             Ok(())
         })
+        .on_window_event(|window, event| {
+            // Close-to-tray: the X button hides the window instead of
+            // quitting the app. Users must explicitly choose Quit from
+            // the tray menu (or close the whole process) to exit.
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                window.hide().ok();
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri app");
 }
