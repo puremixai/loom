@@ -8,3 +8,6 @@ src-tauri/resources/loom-server-*
 
 # Rust incremental compile cache
 src-tauri/Cargo.lock.bak
+
+# Sidecar build intermediates (esbuild bundle + SEA blob + wrapper)
+.build/
