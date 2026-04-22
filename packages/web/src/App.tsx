@@ -1,4 +1,5 @@
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SkillsPage } from './pages/SkillsPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
@@ -24,19 +25,20 @@ function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-white text-ink-900">
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur shadow-[inset_0_-1px_0_rgba(0,0,0,0.08)]">
           <div className="mx-auto flex h-14 max-w-content items-center justify-between px-6">
             <div className="flex items-center gap-8">
-              <NavLink to="/" className="flex items-center" aria-label="loom – go to projects">
-                <LoomLogo size="sm" />
+              <NavLink to="/" className="flex items-center" aria-label={t('nav.ariaLogo')}>
+                <LoomLogo size="md" />
               </NavLink>
               <nav className="flex items-center gap-5">
-                <NavItem to="/">Projects</NavItem>
-                <NavItem to="/skills">Skills</NavItem>
-                <NavItem to="/settings">Settings</NavItem>
+                <NavItem to="/">{t('nav.projects')}</NavItem>
+                <NavItem to="/skills">{t('nav.skills')}</NavItem>
+                <NavItem to="/settings">{t('nav.settings')}</NavItem>
               </nav>
             </div>
           </div>
