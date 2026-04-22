@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronRight, Folder, FolderOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { TreeNode } from '@/hooks/useSkillTree';
 
@@ -11,6 +12,7 @@ export interface SkillTreeNodeProps {
 }
 
 export function SkillTreeNode({ node, selectedKey, collapsed, onSelect, onToggleCollapse }: SkillTreeNodeProps) {
+  const { t } = useTranslation();
   const isSelected = node.key === selectedKey;
   const isCollapsed = collapsed.has(node.key);
   const hasChildren = node.children.length > 0;
@@ -33,7 +35,7 @@ export function SkillTreeNode({ node, selectedKey, collapsed, onSelect, onToggle
         {hasChildren ? (
           <button
             type="button"
-            aria-label={isCollapsed ? 'Expand' : 'Collapse'}
+            aria-label={isCollapsed ? t('skills.expand') : t('skills.collapse')}
             className="flex h-4 w-4 items-center justify-center text-ink-400 hover:text-ink-900"
             onClick={(e) => { e.stopPropagation(); onToggleCollapse(node.key); }}
           >
