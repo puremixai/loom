@@ -10,6 +10,10 @@ permissions:
 
 jobs:
   release:
+    # Skip desktop-only tags — those are handled by desktop-release.yml
+    # which attaches Windows installers. Running both workflows on the
+    # same tag would produce conflicting prerelease flags.
+    if: ${{ !endsWith(github.ref_name, '-desktop') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
