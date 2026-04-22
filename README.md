@@ -1,340 +1,168 @@
-# Loom
+# 🧵 Loom
 
 **Weave Claude skills into every project.**
 
-Loom is a local-first web app for managing [Claude Code](https://claude.com/product/claude-code) skills on a per-project basis. It discovers every `SKILL.md` under your `~/.claude/` tree, lets you apply curated subsets to individual projects via symlinks (or junctions on Windows), and can ask an LLM to recommend the right skills for each project based on rules you commit to git.
+Loom is a local-first app that manages [Claude Code](https://claude.com/product/claude-code) skills on a per-project basis. Scan every `SKILL.md` under `~/.claude/`, link a curated subset into each project, optionally let an LLM recommend what fits — all without touching Claude Code's global skill store.
 
-[English](./README.md) · [中文](./README_zh.md)
+**[English](./README.md) · [中文](./README_zh.md)** · [CHANGELOG](./CHANGELOG.md) · [Design](./docs/DESIGN.md)
 
-> Skills in Claude Code are global by default. Loom makes them project-scoped without duplicating files.
-
----
-
-## Why Loom
-
-Once you have 50+ skills installed across plugins and custom sources, every Claude Code session sees all of them — increasing noise, slowing triggers, and blurring which skills matter for the project at hand. Loom solves this by:
-
-1. **Scanning** all `SKILL.md` under `~/.claude/skills`, `~/.claude/custom-skills`, and every plugin cache
-2. **Linking** a selected subset into `<project>/.claude/skills/` (so Claude Code picks them up natively)
-3. **Recording** the applied state in a manifest file the team can ignore or audit
-4. **Declaring intent** in a committable `loom.rules.yaml` so the AI-assisted selection is reproducible across machines
-
-## Features
-
-- **Local web UI** — single `pnpm start` boots a Fastify API + SPA on `127.0.0.1:4178`, no cloud account, no sign-in
-- **Multi-project center** — one hub that manages N project directories from a single window
-- **Tree-based navigation** *(v0.2)* — Skills Library sidebar groups skills by source → marketplace → plugin; selection synced to the URL so paths are shareable and browser back/forward works
-- **User-managed skills directory** *(v0.2)* — first-class `~/.loom/skills/` location for your own authored skills (a natural target for Claude Code's `skill-creator`); classified as `user-local` to distinguish from read-only sources
-- **Source updates** *(v0.2)* — detect git-backed skill sources, one-click `git pull` for your own repos, copy-command prompt for plugin updates (Loom doesn't touch Claude Code's plugin metadata)
-- **Two selection modes**
-  - **Manual** — browse / search / filter the full library, check boxes, preview diff, apply
-  - **AI-driven** — describe your project + rules, let an LLM propose skills with reasoning, approve picks
-- **Cross-platform linking** — Windows directory junctions (no admin needed) with an automatic `fs-extra` copy fallback
-- **Transactional apply** — per-project mutex + journal-based rollback; a mid-way failure never leaves a half-applied state
-- **Safe unapply** — only ever removes entries the manifest actually records; untracked files in `.claude/skills/` are never touched
-- **Committable rules** — `loom.rules.yaml` sits in the project repo and captures "what this project should pull from the library"
-- **Provider-agnostic AI** — configurable endpoint supporting OpenAI-compatible and Anthropic Messages API styles; works with gateways, proxies, and local inference servers
-- **Shipping safety** — server binds only to loopback, API keys can be loaded from env vars, write surface strictly within `<project>/.claude/` and `~/.loom/`
-
-## Screenshots
-
-> Screenshots coming soon. The UI follows a minimal Vercel/Geist-inspired design — white canvas, shadow-as-border primitives, Geist Sans + Geist Mono typography. See [`docs/DESIGN.md`](docs/DESIGN.md).
+> Skills in Claude Code are global by default. Loom makes them project-scoped with zero duplication.
 
 ---
 
-## Quick start
+## ✨ Why Loom
 
-### Prerequisites
+With 50+ skills installed, every Claude Code session sees them all — noisy, slow-to-trigger, and the project's real needs get buried.
 
-- **Node.js** ≥ 20.11
-- **pnpm** 9.x — install via `npm install -g pnpm` or Node's built-in `corepack enable && corepack prepare pnpm@9.12.0 --activate`
-- *(Optional)* An API key for OpenAI, Anthropic, or any compatible endpoint — only needed for AI-assisted selection
+Loom solves it in four steps:
 
-### Install & run
+1. 🔍 **Scan** every `SKILL.md` under `~/.claude/` + your own dir + plugin caches
+2. 🔗 **Link** a subset into `<project>/.claude/skills/` (junctions on Windows, symlinks elsewhere)
+3. 📝 **Record** the applied state in `<project>/.claude/loom.json`
+4. 📜 **Commit** your intent in `<project>/.claude/loom.rules.yaml` — reproducible across machines
+
+## 🚀 Shipping forms
+
+The same Fastify + React app, two ways:
+
+| Form | Who for | How to get it |
+|---|---|---|
+| 🌐 **Web app** | Devs who want to `git clone` and run | `pnpm install && pnpm start` → <http://127.0.0.1:4178> |
+| 🖥️ **Desktop app** *(new in v0.3.0)* | Everyone else | MSI or NSIS installer from [Releases](https://github.com/puremixai/loom/releases) (Windows x64) |
+
+The desktop version wraps the same UI in a Tauri shell — system tray, close-to-tray, native folder pickers, bundled Node sidecar. Details: [`apps/desktop/README.md`](apps/desktop/README.md).
+
+---
+
+## 📦 Quick start (web)
+
+**Requirements**: Node 20.11+, pnpm 9.x (run `corepack enable && corepack prepare pnpm@9.12.0 --activate` if you don't have it).
 
 ```bash
 git clone https://github.com/puremixai/loom.git
 cd loom
 pnpm install
-pnpm build       # compiles the web SPA into dist/
-pnpm start       # Fastify serves API + SPA at http://127.0.0.1:4178
+pnpm build && pnpm start
 ```
 
-The default browser opens automatically. Add `NO_OPEN=1` to suppress that.
+Your browser opens to <http://127.0.0.1:4178>. Set `NO_OPEN=1` to suppress.
 
-### Development (hot reload)
-
+For hot reload:
 ```bash
-pnpm dev
-# server on :4178, Vite dev server on :5173 with /api proxy
+pnpm dev    # server on :4178, Vite on :5173 with /api proxy
 ```
 
-Open <http://localhost:5173>.
+## 🧭 How it works
 
----
+1. **Register a project** — Projects page → **Add Project** → paste an absolute path. Stored only as a path reference in `~/.loom/db.json`; your project files are untouched.
+2. **Pick skills** — three modes:
+   - ✋ **Manual** — browse the library, check boxes, preview diff, apply
+   - 🤖 **AI recommend** — describe your project, let an LLM propose skills with reasons
+   - 📋 **Rules-driven** — sync from a committed `loom.rules.yaml`
+3. **Apply** — Loom writes:
+   - `<project>/.claude/skills/<name>/` — a junction / symlink / copy to the source skill
+   - `<project>/.claude/loom.json` — an audit manifest (`method: junction | symlink | copy`)
+4. **Done** — Claude Code picks up the skills natively. Loom doesn't need to keep running.
 
-## Usage walkthrough
+Remove skills via the **Applied** tab or delete the project entry. Loom only removes entries the manifest recorded — untracked files in `.claude/skills/` are never touched.
 
-### 1. Register a project
+## ⚙️ Configuration
 
-On the **Projects** page, click **Add Project** and enter the absolute path to any local project. Loom stores only the path reference in `~/.loom/db.json`; your project files are untouched.
+**Default scan paths** (in **Settings → Scan paths**):
 
-### 2. Pick skills — three ways
+- `~/.claude/skills` — `user` source
+- `~/.claude/custom-skills` — `custom` source
+- `~/.claude/plugins/cache` — `plugin` source, marketplace/plugin name auto-extracted
+- `~/.loom/skills` — `user-local`, Loom-managed, auto-created for your own authored skills
 
-| Mode | When | How |
+**AI provider** (in **Settings → AI configuration**) — any OpenAI-compatible or Anthropic Messages API endpoint. Key resolution: `apiKeyEnv` (env var, preferred) → plaintext (fallback, UI warns).
+
+Compatible today: OpenAI · Anthropic · DeepSeek · Moonshot · OpenRouter · LiteLLM · Ollama (with OpenAI shim) · any compatible gateway.
+
+## 🔒 Data & privacy
+
+Nothing leaves your machine except AI requests you explicitly trigger — and those go only to the endpoint you configured. The server binds to `127.0.0.1` with no auth.
+
+| File | Purpose | Commit? |
 |---|---|---|
-| **Manual** | You already know what you want | Go to the **Add skills** tab, check the boxes, click **Preview**, confirm the diff, **Apply** |
-| **AI** | New project, want suggestions | Open **AI recommend**, fill "project hint" (one-sentence description) + optional keywords / includes / excludes / guidance, click **Generate**, review picks, adjust, **Save rules & apply** |
-| **Rules-driven** | You have `loom.rules.yaml` from a teammate / past session | Open **Rules & sync**, edit YAML if needed, click **Sync by rules** to regenerate the recommended set |
+| `~/.loom/db.json` | Central registry + AI config | No |
+| `~/.loom/skills/` | Your user-authored skills | Up to you |
+| `<project>/.claude/loom.rules.yaml` | Intent — what this project needs | ✅ **Yes** |
+| `<project>/.claude/loom.json` | Applied manifest (environment fact) | No |
+| `<project>/.claude/skills/<name>/` | Links/copies to source skills | No |
 
-### 3. Apply writes two things
+## 🏗️ Architecture
 
-- `<project>/.claude/skills/<skill-name>/` — a junction (Windows) / symlink (POSIX) / directory copy (fallback) pointing at the source skill
-- `<project>/.claude/loom.json` — a manifest recording what was applied, with `method: junction | symlink | copy`
-
-Claude Code picks up the skills from `<project>/.claude/skills/` natively — no Loom runtime needed thereafter.
-
-### 4. Removing skills
-
-Click **Remove** on any applied skill in the **Applied** tab, or delete the project entry entirely. Loom only removes entries the manifest registered — it never recursively deletes untracked paths.
-
----
-
-## Configuration
-
-### Scan paths
-
-Default roots scanned for `**/SKILL.md`:
-
-- `~/.claude/skills` — marked as `user` source
-- `~/.claude/custom-skills` — marked as `custom`
-- `~/.claude/plugins/cache` — marked as `plugin`, with the marketplace/plugin name extracted automatically
-- `~/.loom/skills` *(v0.2, Loom-managed)* — marked as `user-local`, auto-created on first launch; configurable in **Settings → User skills directory**
-
-Configurable in **Settings → Scan paths**. Add, remove, or reorder freely. The user-skills directory always gets scanned even if you remove it from this list.
-
-### AI provider
-
-**Settings → AI configuration** accepts any endpoint matching one of two request styles:
-
-**OpenAI-compatible** (default)
-```
-POST <endpoint>
-Authorization: Bearer <key>
-Body: { "model", "messages": [...], "response_format": { "type": "json_object" } }
-```
-
-Examples: `https://api.openai.com/v1/chat/completions`, OpenRouter, DeepSeek, Moonshot, self-hosted LiteLLM, Ollama with OpenAI shim.
-
-**Anthropic Messages API**
-```
-POST <endpoint>
-x-api-key: <key>
-anthropic-version: 2023-06-01
-Body: { "model", "system", "messages": [...], "max_tokens" }
-```
-
-Example: `https://api.anthropic.com/v1/messages`.
-
-### Key storage
-
-- **Preferred** — set `apiKeyEnv` to the name of an environment variable (e.g. `OPENAI_API_KEY`); Loom reads it at call time from the server process
-- **Fallback** — enter the key directly; Loom stores it in plaintext inside `~/.loom/db.json` and the UI warns you
-
----
-
-## Data & privacy
-
-| File | Location | Purpose | Commit? |
-|---|---|---|---|
-| Central registry | `~/.loom/db.json` | Registered projects + AI config + scan paths + user skills dir | n/a (not in any repo) |
-| Scanner cache | `~/.loom/skills-cache.json` | Fingerprint cache for incremental rescans | n/a |
-| User skills dir | `~/.loom/skills/` *(default)* | Your own authored skills; auto-scanned as `source: 'user-local'` | n/a (your own repo, if you make it one) |
-| Rules file | `<project>/.claude/loom.rules.yaml` | Your intent: projectHint, includes, excludes, keywords, aiGuidance | **Yes** — share with teammates |
-| Applied manifest | `<project>/.claude/loom.json` | What Loom linked on this machine, with absolute source paths | No — environment snapshot |
-| Linked skills | `<project>/.claude/skills/<name>/` | Junctions / symlinks / copies into the actual skill dirs | No |
-
-Loom makes **no outbound network calls** except when you explicitly trigger AI recommend / sync / test connection — and those go only to the endpoint you configured.
-
----
-
-## Architecture
-
-pnpm monorepo with three workspace packages:
+pnpm monorepo with three library packages + one app:
 
 ```
 packages/
-├─ shared/       @loom/shared  — zod schemas + constants (single source of truth)
-├─ server/       @loom/server  — Fastify API, scanner, link engine, AI service
-└─ web/          @loom/web     — React SPA, TanStack Query, shadcn-style UI
+├─ shared/   @loom/shared    zod schemas + constants (single source of truth)
+├─ server/   @loom/server    Fastify API, scanner, link engine, AI service
+└─ web/      @loom/web       React SPA (TanStack Query, shadcn-style UI)
+
+apps/
+└─ desktop/  @loom/desktop   Tauri 2 shell + SEA-bundled Node sidecar
 ```
 
-### Backend services
+Full design: [`docs/superpowers/specs/2026-04-20-loom-design.md`](docs/superpowers/specs/2026-04-20-loom-design.md). API surface, backend services, internal conventions: [`CLAUDE.md`](CLAUDE.md).
 
-| Service | File | Role |
-|---|---|---|
-| `ScannerService` | [`packages/server/src/services/scanner.ts`](packages/server/src/services/scanner.ts) | Walks scan paths, parses frontmatter, fingerprint-cached |
-| `LinkService` | [`packages/server/src/services/link.ts`](packages/server/src/services/link.ts) | `applySkills` / `unapplySkills` with transactional journal |
-| `ProjectService` | [`packages/server/src/services/project.ts`](packages/server/src/services/project.ts) | CRUD on the project registry, path validation |
-| `RuleService` | [`packages/server/src/services/rule.ts`](packages/server/src/services/rule.ts) | YAML read/write with zod validation |
-| `AiService` | [`packages/server/src/services/ai.ts`](packages/server/src/services/ai.ts) | OpenAI + Anthropic request builders, retry, response validation |
-| `UserDirService` *(v0.2)* | [`packages/server/src/services/user-dir.ts`](packages/server/src/services/user-dir.ts) | Resolve / ensure / validate the user skills directory |
-| `SourceUpdateService` *(v0.2)* | [`packages/server/src/services/source-update.ts`](packages/server/src/services/source-update.ts) | `findGitRoot`, `detectGitRoots`, `checkUpdate`, `pullRepo` — git shell wrapper with timeout + `git-not-found` / `timeout` error normalization |
+## 🪟 Windows notes
 
-Full architecture in [`docs/superpowers/specs/2026-04-20-loom-design.md`](docs/superpowers/specs/2026-04-20-loom-design.md); v0.2 feature spec in [`docs/superpowers/specs/2026-04-20-source-management-design.md`](docs/superpowers/specs/2026-04-20-source-management-design.md).
+Windows directory **junctions** (no Developer Mode / no admin needed) — with automatic `fs-extra` copy fallback if junctions fail. Copy mode is marked in the manifest so the UI can prompt you to re-sync when source skills change. Verified on Windows 11 + Node 22; see [`packages/server/src/utils/fs-safe.ts`](packages/server/src/utils/fs-safe.ts).
 
-### API surface
-
-All routes return `{ ok: true, data }` or `{ ok: false, error: { code, message } }`.
-
-```
-GET    /api/health
-GET    /api/skills                       ?refresh=1 forces re-scan
-GET    /api/skills/:id                   full SKILL.md content
-GET    /api/projects
-POST   /api/projects                     { path, name?, notes? }
-PATCH  /api/projects/:id
-DELETE /api/projects/:id
-GET    /api/projects/:id/manifest
-GET    /api/projects/:id/rules
-PUT    /api/projects/:id/rules
-POST   /api/projects/:id/diff-preview    { skillIds }
-POST   /api/projects/:id/apply           { skillIds }
-POST   /api/projects/:id/unapply         { skillIds? }
-POST   /api/projects/:id/sync            reads rules.yaml + AI + diff
-POST   /api/ai/recommend
-POST   /api/ai/test                      connectivity probe
-GET    /api/settings                     now returns userSkillsDir
-PUT    /api/settings                     accepts userSkillsDir with validation
-GET    /api/platform                     now includes userSkillsDir
-POST   /api/user-skills-dir/open         (v0.2) reveal dir in OS file manager
-GET    /api/sources                      (v0.2) git-backed source refs
-POST   /api/sources/check                (v0.2) batch ahead/behind, 5-way concurrency
-POST   /api/sources/pull                 (v0.2) git pull for git-source kind only
-```
-
----
-
-## Windows notes
-
-The link engine tries `fs.symlink(src, dst, 'junction')` first — on Windows this creates a **directory junction**, which does **not** require Administrator rights or Developer Mode. If that fails for any reason, it falls back to a full `fs-extra.copy`.
-
-Copy mode is marked in the manifest as `method: "copy"`, and the UI will prompt you to re-sync when skill sources change (links auto-update; copies don't).
-
-The junction-vs-symlink distinction can be subtle on some Windows configurations — Loom uses a two-stage detection helper (`isSymbolicLink()` + `readlink` fallback) that has been verified on Windows 11 + Node 22. See [`packages/server/src/utils/fs-safe.ts`](packages/server/src/utils/fs-safe.ts).
-
----
-
-## Development
+## 🧪 Development
 
 ```bash
-# install (always pnpm, never npm — workspace:* protocol)
 pnpm install
-
-# hot-reload both packages
-pnpm dev
-
-# typecheck everything
-pnpm -r run typecheck
-
-# run all tests (62 total: 5 shared + 53 server + 4 web)
-pnpm -r run test
-
-# production build: web → dist/, server serves both on :4178
-pnpm build && pnpm start
-
-# per-package scripts
-pnpm --filter @loom/server dev
-pnpm --filter @loom/web build
-pnpm --filter @loom/server test
+pnpm dev                   # hot-reload server + web
+pnpm -r run typecheck      # everything
+pnpm -r run test           # 62 tests (5 shared + 53 server + 4 web)
 ```
 
-### Project structure
-
-```
-loom/
-├─ packages/
-│  ├─ shared/              zod schemas, constants, types
-│  │  ├─ src/
-│  │  └─ test/
-│  ├─ server/              Fastify backend
-│  │  ├─ src/
-│  │  │  ├─ routes/        projects, skills, ai, settings, sync, platform, health
-│  │  │  ├─ services/      scanner, link, project, rule, ai, manifest, apply-helpers
-│  │  │  ├─ storage/       center-db lowdb wrapper
-│  │  │  └─ utils/         fs-safe, platform-probe, fingerprint, static
-│  │  └─ test/             vitest + real filesystem fixtures
-│  └─ web/                 React SPA
-│     ├─ src/
-│     │  ├─ pages/         Projects, ProjectDetail, Skills, Settings
-│     │  ├─ components/    SkillCard, SkillTree, DiffPreview, AiRecommendPanel, RulesEditor, UserSkillsDirCard, SourceUpdatesBanner, SourceUpdatesDrawer, ui/*
-│     │  ├─ hooks/         useSkillTree
-│     │  ├─ api/           TanStack Query hooks
-│     │  └─ lib/           cn utility
-│     ├─ test/             useSkillTree pure-helper tests (Vitest + jsdom)
-│     └─ index.html
-├─ docs/
-│  ├─ DESIGN.md            Vercel/Geist visual system
-│  └─ superpowers/
-│     ├─ specs/            architecture specs (v0.1 MVP + v0.2 source management)
-│     └─ plans/            implementation plans
-├─ CHANGELOG.md            English changelog
-├─ CHANGELOG.zh.md         Chinese changelog
-├─ CLAUDE.md               guidance for Claude Code sessions
-└─ README.md / README_zh.md  you are here
+Per-workspace scripts:
+```bash
+pnpm --filter @loom/server  test
+pnpm --filter @loom/web     build
+pnpm --filter @loom/desktop tauri dev
 ```
 
-See [`CLAUDE.md`](CLAUDE.md) for the project's internal conventions — it's written for LLM agents but is also a concise engineering guide for humans.
+CI runs on Ubuntu + Windows × Node 20 / 22. Filesystem fixtures use real `os.tmpdir()` — junction and `git pull` integration bugs only surface on real disks, not mocks.
 
-### Tests
+## 🗺️ Roadmap
 
-Backend tests use real `os.tmpdir()` fixtures with `try/finally` cleanup — filesystem behavior (especially Windows junction detection and `git fetch` / `git pull` integration) is the main thing we verify, so mocks would defeat the purpose. The one exception: `checkUpdate` / `pullRepo` accept an injectable `runner` so most unit tests don't spawn real `git`; a single integration test exercises the end-to-end path on a real `git init` repo. CI runs on Ubuntu + Windows, Node 20 + 22.
-
-Frontend tests landed in v0.2: 4 pure-helper tests for `useSkillTree` + Vitest/jsdom/testing-library infrastructure. Component-level tests welcome.
-
----
-
-## Roadmap
-
-- [ ] Mobile `<768px` sidebar fallback (flat `<select>`)
+- [ ] Mobile `<768px` sidebar fallback
 - [ ] Collapsible "Up to date" / "Errors" drawer sections
-- [ ] Component-level frontend tests with React Testing Library
+- [ ] Component-level frontend tests
 - [ ] CLI companion for CI / automated rules-driven sync
-- [ ] Filesystem watch mode (opt-in, for rapid skill iteration)
-- [ ] Skill preview with rendered Markdown + frontmatter table
+- [ ] Filesystem watch mode (opt-in)
+- [ ] Skill preview with rendered Markdown
 - [ ] Keyboard navigation on the Skills tree
-- [ ] Shell-out `claude plugins update <name>` from the Sources drawer (upgrade from copy-command)
-- [ ] Team mode: share rules across repos via a lightweight sync protocol
-- [ ] Import/export project configurations
+- [ ] Desktop: macOS / Linux installers + signing
+- [ ] Team mode: share rules across repos
 - [ ] Skill collections / tags / saved filters
 
----
+## 🤝 Contributing
 
-## Contributing
+1. Open an issue before non-trivial changes.
+2. Follow [`CLAUDE.md`](CLAUDE.md) conventions (style, file structure, design tokens).
+3. `pnpm -r run typecheck && pnpm -r run test` must pass.
+4. Conventional commits: `feat:`, `fix:`, `docs:`, `chore:`.
 
-Contributions welcome! Please:
+## 🔐 Security
 
-1. Open an issue describing the change before starting work on anything non-trivial
-2. Follow the conventions in [`CLAUDE.md`](CLAUDE.md) (coding style, file structure, design tokens)
-3. Run `pnpm -r run typecheck` and `pnpm -r run test` before pushing
-4. Keep commits focused and use conventional commit messages (`feat:`, `fix:`, `docs:`, `chore:`)
+Binds only to `127.0.0.1`, no auth — **single-user local use only**. Don't expose to LAN/WAN without your own auth layer.
 
-## Security
+Security reports → GitHub Security Advisory (private), not public issues.
 
-Loom binds only to `127.0.0.1` with no authentication — it is designed for single-user local use. Do **not** expose the port to a LAN or the public internet without adding your own auth layer.
-
-Report security issues privately by opening a GitHub security advisory rather than a public issue.
-
-## License
+## 📜 License
 
 [MIT](LICENSE)
 
-## Credits
+## 💖 Credits
 
-- Built with [Fastify](https://fastify.dev/), [React](https://react.dev/), [Vite](https://vite.dev/), [Tailwind CSS](https://tailwindcss.com/), [Radix UI](https://www.radix-ui.com/), [TanStack Query](https://tanstack.com/query), [Zod](https://zod.dev/)
-- UI inspired by [Vercel](https://vercel.com/)'s [Geist](https://vercel.com/font) design system
-- Designed for [Claude Code](https://claude.com/product/claude-code) by Anthropic
+Built with [Fastify](https://fastify.dev/) · [React](https://react.dev/) · [Vite](https://vite.dev/) · [Tailwind](https://tailwindcss.com/) · [Radix UI](https://www.radix-ui.com/) · [TanStack Query](https://tanstack.com/query) · [Zod](https://zod.dev/) · [Tauri](https://tauri.app/) · UI inspired by [Vercel Geist](https://vercel.com/font) · For Anthropic's [Claude Code](https://claude.com/product/claude-code).
 
-## Star History
+## ⭐ Star History
 
 ![Star History](https://api.star-history.com/chart?repos=puremixai/loom&type=date&logscale&legend=top-left)
