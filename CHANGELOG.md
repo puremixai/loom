@@ -4,6 +4,26 @@ All notable changes to **Loom** are documented here. Format loosely follows [Kee
 
 中文版: [CHANGELOG.zh.md](CHANGELOG.zh.md)
 
+## [0.2.3-desktop] — 2026-04-22
+
+### Added
+
+- **Desktop application (Tauri 2) — initial release.** Windows `.msi` and NSIS `.exe` installers that wrap the Fastify server as a Node 22 SEA-packaged sidecar. Core UX is byte-identical to the web version; zero code changes to `packages/shared|server|web` (one additive env-var escape: `LOOM_WEB_DIST` in [`packages/server/src/utils/static.ts`](packages/server/src/utils/static.ts) to let Tauri's resource resolver point the sidecar at the bundled SPA). Desktop-specific source lives entirely in `apps/desktop/`.
+- **System tray** with 6-item menu: Show Loom · Add Project… · Change user skills dir… · About · Quit. Left-click tray toggles window visibility; Add Project / Change user skills dir fire native OS folder pickers and call the sidecar's REST API directly from Rust (no IPC surface exposed to the frontend, preserving its single-origin HTTP model).
+- **Close-to-tray**: clicking the window X hides the window; only the tray **Quit** entry fully exits the app.
+- **Graceful sidecar cleanup** on `RunEvent::ExitRequested` — kills `loom-server.exe` before Tauri tears down, preventing orphaned Node processes in Task Manager.
+
+### CI
+
+- [`.github/workflows/desktop-release.yml`](.github/workflows/desktop-release.yml) — builds and attaches desktop installers when a `v*-desktop` tag is pushed. Windows runner only in v1; macOS / Linux matrix entries are ready to add when those platforms are validated.
+- [`release.yml`](.github/workflows/release.yml) skips `-desktop` tags so the two workflows don't race on the same release.
+
+### Architecture notes
+
+- Sidecar packaging uses Node 22 SEA + `postject` (not `pkg`) — `pkg` lacks Node 22 and ESM support. Pipeline: esbuild bundle → CJS SEA wrapper → blob → inject into a Node.exe copy.
+- Tauri resources ship `packages/web/dist` as `web-dist/`; the Rust main resolves the path via `app.path().resource_dir()` and forwards it to the sidecar through `LOOM_WEB_DIST`.
+- See [`docs/superpowers/specs/2026-04-21-desktop-tauri-design.md`](docs/superpowers/specs/2026-04-21-desktop-tauri-design.md) for the full design.
+
 ## [0.2.3] — 2026-04-20
 
 ### Enhancements
