@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loom · Wordmark 字形方案</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      font-family: 'Geist', Arial, sans-serif;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      background: #fff; color: #171717;
+    }
+    body { padding: 48px 40px; max-width: 1000px; margin: 0 auto; }
+
+    .page-title { font-size: 28px; font-weight: 600; letter-spacing: -1.12px; margin-bottom: 6px; }
+    .page-subtitle { font-size: 14px; color: #666; margin-bottom: 48px; }
+
+    .section-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #aaa; margin-bottom: 20px;
+    }
+
+    /* ── Card grid ── */
+    .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-bottom: 56px; }
+
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04), inset 0 0 0 1px #fafafa;
+      overflow: hidden; cursor: pointer; user-select: none;
+      transition: box-shadow 0.12s;
+    }
+    .card:hover { box-shadow: 0 0 0 1px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.07), inset 0 0 0 1px #fafafa; }
+    .card.selected { box-shadow: 0 0 0 2px #0a72ef, 0 4px 16px rgba(10,114,239,0.10); }
+
+    .card-preview {
+      background: #f5f5f5; height: 180px;
+      display: flex; align-items: center; justify-content: center;
+      border-bottom: 1px solid rgba(0,0,0,0.05); position: relative;
+    }
+    .check {
+      display: none; position: absolute; top: 12px; right: 12px;
+      width: 22px; height: 22px; background: #0a72ef;
+      border-radius: 50%; align-items: center; justify-content: center;
+    }
+    .card.selected .check { display: flex; }
+
+    .card-body { padding: 16px 18px; }
+    .option-tag {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; color: #aaa; margin-bottom: 4px;
+    }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.2px; }
+    .card-desc { font-size: 12px; color: #666; line-height: 1.55; }
+
+    /* ── Shared icon ── */
+    .logo { display: flex; align-items: center; gap: 12px; }
+
+    /* ── Wordmark variants ── */
+    .wm-a { font-size: 30px; font-weight: 600; letter-spacing: -0.05em; color: #171717; }
+    .wm-b { font-size: 30px; font-weight: 600; letter-spacing: -0.04em; color: #171717; }
+    .wm-c {
+      font-family: 'Geist Mono', monospace;
+      font-size: 22px; font-weight: 500;
+      letter-spacing: 0.04em; color: #171717; text-transform: uppercase;
+    }
+
+    /* ── Navbar previews ── */
+    .navbar-row { margin-bottom: 16px; }
+    .row-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; color: #bbb; margin-bottom: 8px;
+    }
+    .mock-navbar {
+      height: 56px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.07), inset 0 -1px 0 rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.95);
+      display: flex; align-items: center; gap: 32px;
+      padding: 0 24px; border-radius: 8px;
+    }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-link { font-size: 14px; color: #999; }
+    .nav-link.active { font-weight: 500; color: #171717; }
+
+    .nav-a { display: flex; align-items: center; gap: 8px; }
+    .nav-wm-a { font-size: 15px; font-weight: 600; letter-spacing: -0.04em; color: #171717; }
+
+    .nav-b { display: flex; align-items: center; gap: 8px; }
+    .nav-wm-b { font-size: 15px; font-weight: 600; letter-spacing: -0.04em; color: #171717; }
+
+    .nav-c { display: flex; align-items: center; gap: 8px; }
+    .nav-wm-c {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #171717;
+    }
+
+    #notice {
+      display: none; margin-top: 24px; padding: 12px 16px;
+      background: #ebf5ff; border-radius: 6px;
+      font-size: 13px; color: #0068d6; font-weight: 500;
+      box-shadow: 0 0 0 1px rgba(10,114,239,0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="page-title">Option B · Wordmark 字形</h1>
+  <p class="page-subtitle">同一图标，三种文字风格 — 点击选择偏好</p>
+
+  <div class="section-label">大尺寸对比</div>
+  <div class="grid">
+
+    <!-- A: all lowercase -->
+    <div class="card" id="card-a" onclick="pick('a')">
+      <div class="card-preview">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="logo">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <line x1="13" y1="6"  x2="13" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="22" y1="6"  x2="22" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="6"  x2="31" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="11" y="13" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="29" y="13" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="20" y="20" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="11" y="27" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="29" y="27" width="4" height="4" fill="#f5f5f5"/>
+          </svg>
+          <span class="wm-a">loom</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="option-tag">Option A</div>
+        <div class="card-title">全小写 loom</div>
+        <div class="card-desc">Geist Sans 600，极简工程感，和 Vercel / Linear 同风格</div>
+      </div>
+    </div>
+
+    <!-- B: Title case -->
+    <div class="card" id="card-b" onclick="pick('b')">
+      <div class="card-preview">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="logo">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <line x1="13" y1="6"  x2="13" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="22" y1="6"  x2="22" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="6"  x2="31" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="11" y="13" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="29" y="13" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="20" y="20" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="11" y="27" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="29" y="27" width="4" height="4" fill="#f5f5f5"/>
+          </svg>
+          <span class="wm-b">Loom</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="option-tag">Option B</div>
+        <div class="card-title">首字母大写 Loom</div>
+        <div class="card-desc">更正式的产品品牌感，与 Notion / Figma 同一语气</div>
+      </div>
+    </div>
+
+    <!-- C: ALL CAPS mono -->
+    <div class="card" id="card-c" onclick="pick('c')">
+      <div class="card-preview">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="logo">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <line x1="13" y1="6"  x2="13" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="22" y1="6"  x2="22" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="6"  x2="31" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="11" y="13" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="29" y="13" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="20" y="20" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="11" y="27" width="4" height="4" fill="#f5f5f5"/>
+            <rect x="29" y="27" width="4" height="4" fill="#f5f5f5"/>
+          </svg>
+          <span class="wm-c">LOOM</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="option-tag">Option C</div>
+        <div class="card-title">全大写等宽 LOOM</div>
+        <div class="card-desc">Geist Mono 500，CLI 工具质感，和导航栏现有风格一脉相承</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Navbar previews -->
+  <div class="section-label">导航栏预览</div>
+
+  <div class="navbar-row">
+    <div class="row-label">loom</div>
+    <div class="mock-navbar">
+      <div class="nav-a">
+        <svg width="18" height="18" viewBox="0 0 44 44" fill="none">
+          <line x1="13" y1="6" x2="13" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="22" y1="6" x2="22" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="31" y1="6" x2="31" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="11" y="13" width="4" height="4" fill="#fff"/>
+          <rect x="29" y="13" width="4" height="4" fill="#fff"/>
+          <rect x="20" y="20" width="4" height="4" fill="#fff"/>
+          <rect x="11" y="27" width="4" height="4" fill="#fff"/>
+          <rect x="29" y="27" width="4" height="4" fill="#fff"/>
+        </svg>
+        <span class="nav-wm-a">loom</span>
+      </div>
+      <div class="nav-links">
+        <span class="nav-link active">Projects</span>
+        <span class="nav-link">Skills</span>
+        <span class="nav-link">Settings</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="navbar-row">
+    <div class="row-label">Loom</div>
+    <div class="mock-navbar">
+      <div class="nav-b">
+        <svg width="18" height="18" viewBox="0 0 44 44" fill="none">
+          <line x1="13" y1="6" x2="13" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="22" y1="6" x2="22" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="31" y1="6" x2="31" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="11" y="13" width="4" height="4" fill="#fff"/>
+          <rect x="29" y="13" width="4" height="4" fill="#fff"/>
+          <rect x="20" y="20" width="4" height="4" fill="#fff"/>
+          <rect x="11" y="27" width="4" height="4" fill="#fff"/>
+          <rect x="29" y="27" width="4" height="4" fill="#fff"/>
+        </svg>
+        <span class="nav-wm-b">Loom</span>
+      </div>
+      <div class="nav-links">
+        <span class="nav-link active">Projects</span>
+        <span class="nav-link">Skills</span>
+        <span class="nav-link">Settings</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="navbar-row">
+    <div class="row-label">LOOM</div>
+    <div class="mock-navbar">
+      <div class="nav-c">
+        <svg width="18" height="18" viewBox="0 0 44 44" fill="none">
+          <line x1="13" y1="6" x2="13" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="22" y1="6" x2="22" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="31" y1="6" x2="31" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="11" y="13" width="4" height="4" fill="#fff"/>
+          <rect x="29" y="13" width="4" height="4" fill="#fff"/>
+          <rect x="20" y="20" width="4" height="4" fill="#fff"/>
+          <rect x="11" y="27" width="4" height="4" fill="#fff"/>
+          <rect x="29" y="27" width="4" height="4" fill="#fff"/>
+        </svg>
+        <span class="nav-wm-c">LOOM</span>
+      </div>
+      <div class="nav-links">
+        <span class="nav-link active">Projects</span>
+        <span class="nav-link">Skills</span>
+        <span class="nav-link">Settings</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="notice"></div>
+
+  <script>
+    function pick(c) {
+      ['a','b','c'].forEach(x => document.getElementById('card-' + x).classList.remove('selected'));
+      document.getElementById('card-' + c).classList.add('selected');
+      const labels = { a: '全小写 loom', b: '首字母大写 Loom', c: '全大写等宽 LOOM' };
+      const n = document.getElementById('notice');
+      n.style.cssText = 'display:block;margin-top:24px;padding:12px 16px;background:#ebf5ff;border-radius:6px;font-size:13px;color:#0068d6;font-weight:500;box-shadow:0 0 0 1px rgba(10,114,239,0.12);';
+      n.innerHTML = '✓ 已选择 <strong>' + labels[c] + '</strong> — 在对话框告诉我想法';
+    }
+  </script>
+
+</body>
+</html>
