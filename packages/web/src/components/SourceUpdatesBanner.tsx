@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSources, useCheckSources } from '@/api/sources';
 import { Button } from '@/components/ui/button';
 import { SourceUpdatesDrawer } from './SourceUpdatesDrawer';
 
 export function SourceUpdatesBanner() {
+  const { t } = useTranslation();
   const { data } = useSources();
   const check = useCheckSources();
   const [open, setOpen] = useState(false);
@@ -16,15 +18,15 @@ export function SourceUpdatesBanner() {
     <>
       <div className="flex items-center justify-between rounded-lg bg-white px-4 py-3 shadow-ring-light">
         <div className="flex items-center gap-3 text-sm">
-          <span className="font-medium text-ink-900">Sources</span>
+          <span className="font-medium text-ink-900">{t('sources.bannerLabel')}</span>
           <span className="text-ink-500">
-            {refCount} git-backed
+            {t('sources.bannerGitBacked', { count: refCount })}
             {check.data && updateCount > 0 && (
-              <> · <span className="text-develop-blue">{updateCount} have updates</span></>
+              <> · <span className="text-develop-blue">{t('sources.bannerHasUpdates', { count: updateCount })}</span></>
             )}
           </span>
         </div>
-        <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>View</Button>
+        <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>{t('sources.viewButton')}</Button>
       </div>
       <SourceUpdatesDrawer open={open} onOpenChange={setOpen} />
     </>

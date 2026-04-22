@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecommend } from '@/api/ai';
 import { useSaveRules } from '@/api/rules';
 import { useApply, useDiffPreview } from '@/api/projects';
@@ -10,6 +11,7 @@ import { DiffPreview } from '@/components/DiffPreview';
 import type { RuleFile } from '@loom/shared';
 
 export function AiRecommendPanel({ projectId, initialRules }: { projectId: string; initialRules: RuleFile | null }) {
+  const { t } = useTranslation();
   const [projectHint, setProjectHint] = useState(initialRules?.projectHint ?? '');
   const [includesText, setIncludesText] = useState((initialRules?.includes ?? []).join(', '));
   const [excludesText, setExcludesText] = useState((initialRules?.excludes ?? []).join(', '));
@@ -69,39 +71,39 @@ export function AiRecommendPanel({ projectId, initialRules }: { projectId: strin
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="space-y-3">
         <label className="block text-sm">
-          <span className="font-medium text-ink-900">Project hint</span>
+          <span className="font-medium text-ink-900">{t('ai.panel.projectHint')}</span>
           <textarea
             className="mt-1 w-full rounded-md bg-white p-3 text-sm text-ink-900 shadow-ring-light transition-all hover:shadow-border"
             rows={3} value={projectHint} onChange={e => setProjectHint(e.target.value)}
-            placeholder="Full-stack React + Supabase app with auth and billing."
+            placeholder={t('ai.panel.projectHintPlaceholder')}
           />
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-ink-900">Keywords (comma-separated)</span>
-          <Input value={keywordsText} onChange={e => setKeywordsText(e.target.value)} placeholder="react, supabase, auth" />
+          <span className="font-medium text-ink-900">{t('ai.panel.keywords')}</span>
+          <Input value={keywordsText} onChange={e => setKeywordsText(e.target.value)} placeholder={t('ai.panel.keywordsPlaceholder')} />
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-ink-900">Includes (skill ids or names)</span>
+          <span className="font-medium text-ink-900">{t('ai.panel.includes')}</span>
           <Input value={includesText} onChange={e => setIncludesText(e.target.value)} />
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-ink-900">Excludes</span>
+          <span className="font-medium text-ink-900">{t('ai.panel.excludes')}</span>
           <Input value={excludesText} onChange={e => setExcludesText(e.target.value)} />
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-ink-900">AI guidance</span>
+          <span className="font-medium text-ink-900">{t('ai.panel.aiGuidance')}</span>
           <textarea
             className="mt-1 w-full rounded-md bg-white p-3 text-sm text-ink-900 shadow-ring-light transition-all hover:shadow-border"
             rows={3} value={aiGuidance} onChange={e => setAiGuidance(e.target.value)}
-            placeholder="Prefer skills focused on testing and debugging."
+            placeholder={t('ai.panel.aiGuidancePlaceholder')}
           />
         </label>
         <div className="flex items-center gap-2">
           <Button onClick={runRecommend} disabled={recommend.isPending || projectHint.trim().length === 0}>
-            {recommend.isPending ? 'Generating…' : 'Generate recommendations'}
+            {recommend.isPending ? t('ai.panel.generating') : t('ai.panel.generate')}
           </Button>
           <Button variant="secondary" onClick={saveAndPreview} disabled={selectedIds.size === 0}>
-            Save rules & preview apply
+            {t('ai.panel.saveAndPreview')}
           </Button>
         </div>
         {recommend.error && <p className="text-xs text-ship-red">{(recommend.error as Error).message}</p>}
@@ -109,7 +111,7 @@ export function AiRecommendPanel({ projectId, initialRules }: { projectId: strin
 
       <div>
         <h3 className="mb-2 font-mono text-xs font-medium uppercase tracking-tight text-ink-500">
-          Recommendations <span className="ml-1 text-ink-400">{recommend.data?.picks.length ?? 0}</span>
+          {t('ai.panel.recommendations')} <span className="ml-1 text-ink-400">{recommend.data?.picks.length ?? 0}</span>
         </h3>
         {recommend.data?.warnings.length ? (
           <div className="mb-3 rounded-lg bg-badge-yellow-bg p-3 shadow-ring-light">
@@ -128,7 +130,7 @@ export function AiRecommendPanel({ projectId, initialRules }: { projectId: strin
                   <Badge variant="secondary">{p.skill.pluginName ?? p.skill.source}</Badge>
                 </div>
                 <p className="mt-0.5 text-xs text-ink-500">{p.skill.description}</p>
-                <p className="mt-1 text-xs italic text-ink-600">Why: {p.reason}</p>
+                <p className="mt-1 text-xs italic text-ink-600">{t('ai.panel.why', { reason: p.reason })}</p>
               </div>
             </label>
           ))}
@@ -137,12 +139,12 @@ export function AiRecommendPanel({ projectId, initialRules }: { projectId: strin
 
       <Dialog open={diffOpen} onOpenChange={setDiffOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Review changes</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('projectDetail.diff.reviewChanges')}</DialogTitle></DialogHeader>
           {diffMut.data && <DiffPreview diff={diffMut.data} />}
           <div className="mt-4 flex justify-end gap-2">
-            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
+            <DialogClose asChild><Button variant="secondary">{t('common.cancel')}</Button></DialogClose>
             <Button onClick={confirmApply} disabled={applyMut.isPending}>
-              {applyMut.isPending ? 'Applying…' : 'Apply'}
+              {applyMut.isPending ? t('common.applying') : t('common.apply')}
             </Button>
           </div>
         </DialogContent>

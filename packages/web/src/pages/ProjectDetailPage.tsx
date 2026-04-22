@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ function group(skills: Skill[]): Record<string, Skill[]> {
 }
 
 export function ProjectDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { data: projects } = useProjects();
   const project = projects?.find(p => p.id === id);
@@ -75,13 +77,13 @@ export function ProjectDetailPage() {
     setSelected(new Set());
   }
 
-  if (!project) return <p className="text-sm text-ink-500">Loading project…</p>;
+  if (!project) return <p className="text-sm text-ink-500">{t('projectDetail.loadingProject')}</p>;
 
   return (
     <div className="space-y-8">
       <div>
         <Link to="/" className="text-xs text-ink-500 hover:text-ink-900 transition-colors">
-          ← Projects
+          {t('projectDetail.backShort')}
         </Link>
         <div className="mt-3 flex items-start justify-between gap-6">
           <div>
@@ -93,13 +95,13 @@ export function ProjectDetailPage() {
           <div className="flex items-center gap-2">
             {manifest ? (
               <>
-                <Badge variant="info">{manifest.skills.length} applied</Badge>
+                <Badge variant="info">{t('projectDetail.status.appliedCount', { count: manifest.skills.length })}</Badge>
                 <Badge variant={manifest.method === 'copy' ? 'warning' : 'secondary'}>
                   {manifest.method}
                 </Badge>
               </>
             ) : (
-              <Badge variant="secondary">not initialized</Badge>
+              <Badge variant="secondary">{t('projectDetail.status.notInitialized')}</Badge>
             )}
           </div>
         </div>
@@ -107,10 +109,10 @@ export function ProjectDetailPage() {
 
       <Tabs defaultValue="applied">
         <TabsList>
-          <TabsTrigger value="applied">Applied ({manifest?.skills.length ?? 0})</TabsTrigger>
-          <TabsTrigger value="add">Add skills</TabsTrigger>
-          <TabsTrigger value="ai">AI recommend</TabsTrigger>
-          <TabsTrigger value="rules">Rules & sync</TabsTrigger>
+          <TabsTrigger value="applied">{t('projectDetail.tabs.applied', { count: manifest?.skills.length ?? 0 })}</TabsTrigger>
+          <TabsTrigger value="add">{t('projectDetail.tabs.addSkills')}</TabsTrigger>
+          <TabsTrigger value="ai">{t('projectDetail.tabs.aiRecommend')}</TabsTrigger>
+          <TabsTrigger value="rules">{t('projectDetail.tabs.rulesAndSync')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="applied">
@@ -119,9 +121,9 @@ export function ProjectDetailPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="shadow-[inset_0_-1px_0_rgba(0,0,0,0.08)]">
-                    <th className="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-tight text-ink-500">Name</th>
-                    <th className="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-tight text-ink-500">Linked as</th>
-                    <th className="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-tight text-ink-500">Source</th>
+                    <th className="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-tight text-ink-500">{t('projectDetail.applied.columns.name')}</th>
+                    <th className="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-tight text-ink-500">{t('projectDetail.applied.columns.linkedAs')}</th>
+                    <th className="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-tight text-ink-500">{t('projectDetail.applied.columns.source')}</th>
                     <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
@@ -136,9 +138,9 @@ export function ProjectDetailPage() {
                       <td className="px-4 py-3 text-right">
                         <Button
                           size="sm" variant="ghost"
-                          onClick={() => { if (confirm(`Remove "${s.name}"?`) && id) unapplyMut.mutate({ projectId: id, skillIds: [s.id] }); }}
+                          onClick={() => { if (confirm(t('projectDetail.applied.removeConfirm', { name: s.name })) && id) unapplyMut.mutate({ projectId: id, skillIds: [s.id] }); }}
                           className="text-ink-500 hover:text-ship-red hover:bg-white"
-                        >Remove</Button>
+                        >{t('common.remove')}</Button>
                       </td>
                     </tr>
                   ))}
@@ -147,8 +149,8 @@ export function ProjectDetailPage() {
             </div>
           ) : (
             <div className="rounded-lg bg-white py-16 text-center shadow-border">
-              <p className="text-base text-ink-900">No skills applied yet</p>
-              <p className="mt-1 text-sm text-ink-500">Open the "Add skills" tab to pick from the library.</p>
+              <p className="text-base text-ink-900">{t('projectDetail.applied.empty.headline')}</p>
+              <p className="mt-1 text-sm text-ink-500">{t('projectDetail.applied.empty.description')}</p>
             </div>
           )}
         </TabsContent>
@@ -156,9 +158,9 @@ export function ProjectDetailPage() {
         <TabsContent value="add">
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-3">
-              <Input placeholder="Search…" value={q} onChange={e => setQ(e.target.value)} className="w-80" />
+              <Input placeholder={t('common.search')} value={q} onChange={e => setQ(e.target.value)} className="w-80" />
               <Button onClick={previewApply} disabled={selected.size === 0 || diffMut.isPending}>
-                {diffMut.isPending ? 'Computing diff…' : `Preview (${selected.size})`}
+                {diffMut.isPending ? t('projectDetail.add.computingDiff') : t('projectDetail.add.preview', { count: selected.size })}
               </Button>
             </div>
             {Object.entries(groups).map(([key, skills]) => (
@@ -185,7 +187,7 @@ export function ProjectDetailPage() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-baseline gap-2">
                             <span className="truncate font-medium text-ink-900">{s.name}</span>
-                            {applied && <span className="text-[10px] font-mono uppercase text-ink-400">applied</span>}
+                            {applied && <span className="text-[10px] font-mono uppercase text-ink-400">{t('projectDetail.add.appliedLabel')}</span>}
                           </div>
                           <p className="mt-0.5 line-clamp-2 text-xs text-ink-500">{s.description}</p>
                         </div>
@@ -210,16 +212,16 @@ export function ProjectDetailPage() {
       <Dialog open={diffOpen} onOpenChange={setDiffOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Review changes</DialogTitle>
+            <DialogTitle>{t('projectDetail.diff.reviewChanges')}</DialogTitle>
           </DialogHeader>
           {diffMut.data && <DiffPreview diff={diffMut.data} />}
           {diffMut.data?.missing && diffMut.data.missing.length > 0 && (
-            <p className="mt-3 text-xs text-ship-red">Unknown skill ids: {diffMut.data.missing.join(', ')}</p>
+            <p className="mt-3 text-xs text-ship-red">{t('projectDetail.diff.unknownIds', { ids: diffMut.data.missing.join(', ') })}</p>
           )}
           <div className="mt-6 flex justify-end gap-2">
-            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
+            <DialogClose asChild><Button variant="secondary">{t('common.cancel')}</Button></DialogClose>
             <Button onClick={confirmApply} disabled={applyMut.isPending}>
-              {applyMut.isPending ? 'Applying…' : 'Apply'}
+              {applyMut.isPending ? t('common.applying') : t('common.apply')}
             </Button>
           </div>
         </DialogContent>

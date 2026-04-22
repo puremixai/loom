@@ -1,0 +1,294 @@
+{
+  "common": {
+    "save": "保存",
+    "saving": "保存中…",
+    "cancel": "取消",
+    "confirm": "确认",
+    "loading": "加载中…",
+    "show": "显示",
+    "hide": "隐藏",
+    "edit": "编辑",
+    "remove": "移除",
+    "apply": "应用",
+    "copy": "复制",
+    "refresh": "刷新",
+    "retry": "重试",
+    "close": "关闭",
+    "open": "打开",
+    "back": "返回",
+    "more": "更多",
+    "ok": "OK",
+    "fail": "失败",
+    "yes": "是",
+    "no": "否",
+    "applying": "应用中…",
+    "opening": "打开中…",
+    "search": "搜索…"
+  },
+  "nav": {
+    "projects": "项目",
+    "skills": "技能库",
+    "settings": "设置",
+    "ariaLogo": "loom — 返回项目页"
+  },
+  "projects": {
+    "title": "项目",
+    "subtitle": "管理所有接入 Loom 的项目",
+    "subtitleCount": "已登记 {{count}} 个 · 按项目管理技能集合",
+    "addButton": "添加项目",
+    "addDialog": {
+      "title": "添加项目",
+      "titleAlt": "添加一个项目",
+      "pathLabel": "路径",
+      "pathHint": "项目目录的绝对路径",
+      "nameLabel": "名称",
+      "nameOptional": "（可选）",
+      "notesLabel": "备注（可选）",
+      "namePlaceholder": "留空则使用文件夹名",
+      "nameDefaultHint": "默认使用目录名",
+      "pathPlaceholder": "D:/projects/my-app 或 /Users/me/projects/my-app",
+      "pathPlaceholderShort": "C:/path/to/project",
+      "submit": "添加",
+      "submitting": "添加中…"
+    },
+    "empty": {
+      "headline": "还没有项目",
+      "description": "加一个项目路径，把选好的技能织进它的 .claude/skills/",
+      "headlineAlt": "还没有登记任何项目",
+      "descriptionAlt": "点击上方的 “添加项目” 开始。"
+    },
+    "table": {
+      "name": "名称",
+      "path": "路径",
+      "skills": "技能",
+      "lastApplied": "最近应用",
+      "actions": "操作",
+      "openInFinder": "在文件夹中打开"
+    },
+    "deleteConfirm": "从注册表删除这个项目？已应用的技能链接不会自动清理。",
+    "removeConfirm": "将 “{{name}}” 从列表移除？项目目录里的文件不会被删除。",
+    "lastSynced": "最近同步：{{date}}"
+  },
+  "projectDetail": {
+    "backToProjects": "返回项目列表",
+    "backShort": "← 项目",
+    "loadingProject": "正在加载项目…",
+    "skillsTab": "技能",
+    "rulesTab": "规则",
+    "manifestTab": "Manifest",
+    "sections": {
+      "available": "可选技能",
+      "applied": "已应用",
+      "preview": "差异预览",
+      "aiRecommend": "AI 推荐"
+    },
+    "aiDescribePlaceholder": "简单描述这个项目，帮助 AI 选合适的技能…",
+    "aiRecommend": "AI 推荐",
+    "aiRecommending": "正在推荐…",
+    "applyButton": "应用所选",
+    "unapplyButton": "移除",
+    "noSkillsSelected": "没有选中技能",
+    "diffEmpty": "没有变更",
+    "diffAdded": "新增",
+    "diffRemoved": "移除",
+    "status": {
+      "appliedCount": "已应用 {{count}} 个",
+      "notInitialized": "未初始化"
+    },
+    "tabs": {
+      "applied": "已应用（{{count}}）",
+      "addSkills": "添加技能",
+      "aiRecommend": "AI 推荐",
+      "rulesAndSync": "规则与同步"
+    },
+    "applied": {
+      "columns": {
+        "name": "名称",
+        "linkedAs": "链接名",
+        "source": "来源"
+      },
+      "empty": {
+        "headline": "还没有应用任何技能",
+        "description": "打开 “添加技能” 标签，从技能库里挑一些。"
+      },
+      "removeConfirm": "移除 “{{name}}”？"
+    },
+    "add": {
+      "computingDiff": "正在计算差异…",
+      "preview": "预览（{{count}}）",
+      "appliedLabel": "已应用"
+    },
+    "diff": {
+      "reviewChanges": "确认变更",
+      "unknownIds": "未知的技能 id：{{ids}}"
+    }
+  },
+  "skills": {
+    "title": "技能库",
+    "subtitle": "所有扫描到的 SKILL.md",
+    "allSkills": "全部技能",
+    "countOf": "共 {{total}} 个技能中的 {{filtered}} 个",
+    "matching": "匹配 “{{query}}”",
+    "refreshing": "刷新中…",
+    "search": "搜索技能…",
+    "noResults": "没有匹配的技能",
+    "parseWarningTitle": "有 {{count}} 个技能解析失败",
+    "empty": {
+      "headline": "这个路径下没有技能",
+      "description": "在侧栏选另一个文件夹，或清除搜索词。"
+    },
+    "treeAriaLabel": "技能目录树",
+    "expand": "展开",
+    "collapse": "收起",
+    "filter": {
+      "allSources": "全部来源",
+      "user": "用户",
+      "custom": "自定义",
+      "userLocal": "本地",
+      "plugin": "插件"
+    },
+    "table": {
+      "name": "名称",
+      "source": "来源",
+      "description": "说明",
+      "lastModified": "最近修改"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "AI 服务、扫描路径、平台诊断",
+    "sections": {
+      "ai": "AI 服务",
+      "userSkillsDir": "用户技能目录",
+      "scanPaths": "扫描路径",
+      "platform": "平台",
+      "language": "界面语言"
+    },
+    "language": {
+      "title": "界面语言",
+      "description": "切换界面语言。刷新后生效，选择保存在本地。",
+      "label": "语言",
+      "options": {
+        "zh": "中文（简体）",
+        "en": "English"
+      }
+    },
+    "ai": {
+      "title": "AI 服务",
+      "requestStyle": "请求格式",
+      "requestStyleHint": "两种格式共享同一套响应解析。",
+      "endpoint": "Endpoint URL",
+      "model": "模型",
+      "apiKeyEnv": "API Key 环境变量",
+      "apiKeyEnvHint": "推荐——运行时从该环境变量读取 Key。",
+      "apiKey": "API Key",
+      "apiKeyHint": "兜底方案——明文存进 ~/.loom/db.json，建议用环境变量代替。",
+      "systemPrompt": "自定义 system prompt",
+      "systemPromptHint": "填写后将替换默认的 system prompt。",
+      "testConnection": "测试连接",
+      "testing": "测试中…",
+      "testOk": "连通 · {{latency}}ms",
+      "testFail": "失败"
+    },
+    "userSkills": {
+      "title": "用户技能目录",
+      "description": "你自己写的技能放哪里。Loom 会在 Apply 时把精选技能链接到项目。",
+      "currentPath": "当前路径",
+      "setPath": "设置目录",
+      "openPath": "打开",
+      "reset": "重置为默认",
+      "cardDescription": "由 Loom 管理的个人技能存放位置。自动扫描，并显示在 <code>user-local</code> 来源下。",
+      "openFolder": "打开文件夹",
+      "saved": "已保存。",
+      "createTitle": "新建一个技能",
+      "createStep1Prefix": "1. 在 Claude Code 中运行下面的命令（把 ",
+      "createStep1Suffix": " 替换成你的技能名）。",
+      "createStep2Prefix": "2. 回到这里，在「技能库」点一下 ",
+      "createStep2Bold": "刷新",
+      "createStep2Suffix": "。",
+      "copyCommand": "复制命令"
+    },
+    "scanPaths": {
+      "title": "扫描路径",
+      "description": "每行一个路径。默认覆盖 ~/.claude 下的技能与插件缓存。"
+    },
+    "platform": {
+      "title": "平台",
+      "os": "系统",
+      "node": "Node",
+      "linkMethod": "链接方式",
+      "loading": "加载中…"
+    }
+  },
+  "sources": {
+    "bannerTitle": "上游更新",
+    "bannerDescription": "{{count}} 个来源有新的 SKILL.md。",
+    "bannerLabel": "来源",
+    "bannerGitBacked": "{{count}} 个 git 仓库",
+    "bannerHasUpdates": "{{count}} 个有更新",
+    "viewButton": "查看",
+    "pullButton": "拉取",
+    "checkButton": "检测",
+    "checking": "检测中…",
+    "pulling": "拉取中…",
+    "upToDate": "全部最新",
+    "errors": "异常",
+    "drawerTitle": "来源更新",
+    "refreshNow": "立即刷新",
+    "lastChecked": "最近检测：{{time}}",
+    "behindUpstream": "落后上游（{{count}}）",
+    "upToDateSection": "已是最新（{{count}}）",
+    "errorsSection": "异常（{{count}}）",
+    "status": {
+      "dirty": "有本地修改",
+      "commitBehindOne": "落后 {{count}} 次提交",
+      "commitBehindMany": "落后 {{count}} 次提交",
+      "commitAheadOne": "领先本地 {{count}} 次提交",
+      "commitAheadMany": "领先本地 {{count}} 次提交"
+    },
+    "duration": {
+      "justNow": "刚刚",
+      "minAgo": "{{count}} 分钟前",
+      "hAgo": "{{count}} 小时前",
+      "dAgo": "{{count}} 天前"
+    }
+  },
+  "rules": {
+    "title": "项目规则",
+    "description": "承载「这个项目需要哪些技能」的意图，建议入 git。",
+    "includeLabel": "强制包含",
+    "excludeLabel": "强制排除",
+    "saveRules": "保存规则",
+    "rulesSaved": "规则已保存",
+    "syncByRules": "按规则同步",
+    "syncPreview": "同步预览"
+  },
+  "ai": {
+    "panel": {
+      "projectHint": "项目描述",
+      "projectHintPlaceholder": "基于 React 和 Supabase 的全栈应用，包含登录和计费。",
+      "keywords": "关键词（用逗号分隔）",
+      "keywordsPlaceholder": "react, supabase, auth",
+      "includes": "强制包含（skill id 或名字）",
+      "excludes": "强制排除",
+      "aiGuidance": "给 AI 的指引",
+      "aiGuidancePlaceholder": "优先选偏重测试和调试的技能。",
+      "generate": "生成推荐",
+      "generating": "生成中…",
+      "saveAndPreview": "保存规则并预览应用",
+      "recommendations": "推荐结果",
+      "why": "理由：{{reason}}"
+    }
+  },
+  "diff": {
+    "add": "新增",
+    "keep": "保留",
+    "remove": "移除",
+    "none": "无"
+  },
+  "errors": {
+    "generic": "发生错误：{{message}}",
+    "network": "网络错误，请检查与服务器的连接。",
+    "unknown": "未知错误"
+  }
+}

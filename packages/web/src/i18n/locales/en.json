@@ -1,0 +1,294 @@
+{
+  "common": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "loading": "Loading…",
+    "show": "Show",
+    "hide": "Hide",
+    "edit": "Edit",
+    "remove": "Remove",
+    "apply": "Apply",
+    "copy": "Copy",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "close": "Close",
+    "open": "Open",
+    "back": "Back",
+    "more": "More",
+    "ok": "OK",
+    "fail": "Fail",
+    "yes": "Yes",
+    "no": "No",
+    "applying": "Applying…",
+    "opening": "Opening…",
+    "search": "Search…"
+  },
+  "nav": {
+    "projects": "Projects",
+    "skills": "Skills",
+    "settings": "Settings",
+    "ariaLogo": "loom — go to projects"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage every project weaved with Loom",
+    "subtitleCount": "{{count}} registered · manage per-project skill sets",
+    "addButton": "Add Project",
+    "addDialog": {
+      "title": "Add Project",
+      "titleAlt": "Add a project",
+      "pathLabel": "Path",
+      "pathHint": "Absolute path to the project directory",
+      "nameLabel": "Name",
+      "nameOptional": "(optional)",
+      "notesLabel": "Notes (optional)",
+      "namePlaceholder": "Leave blank to use folder name",
+      "nameDefaultHint": "Defaults to directory name",
+      "pathPlaceholder": "D:/projects/my-app or /Users/me/projects/my-app",
+      "pathPlaceholderShort": "C:/path/to/project",
+      "submit": "Add",
+      "submitting": "Adding…"
+    },
+    "empty": {
+      "headline": "No projects yet",
+      "description": "Add a project path to weave selected skills into its .claude/skills/",
+      "headlineAlt": "No projects registered yet",
+      "descriptionAlt": "Click \"Add Project\" above to get started."
+    },
+    "table": {
+      "name": "Name",
+      "path": "Path",
+      "skills": "Skills",
+      "lastApplied": "Last applied",
+      "actions": "Actions",
+      "openInFinder": "Open in file manager"
+    },
+    "deleteConfirm": "Remove this project from the registry? Applied skill links are not auto-cleaned.",
+    "removeConfirm": "Remove \"{{name}}\" from the list? Files in the project directory are not deleted.",
+    "lastSynced": "Last synced: {{date}}"
+  },
+  "projectDetail": {
+    "backToProjects": "Back to projects",
+    "backShort": "← Projects",
+    "loadingProject": "Loading project…",
+    "skillsTab": "Skills",
+    "rulesTab": "Rules",
+    "manifestTab": "Manifest",
+    "sections": {
+      "available": "Available",
+      "applied": "Applied",
+      "preview": "Diff preview",
+      "aiRecommend": "AI recommend"
+    },
+    "aiDescribePlaceholder": "Briefly describe this project to help the AI pick the right skills…",
+    "aiRecommend": "AI recommend",
+    "aiRecommending": "Recommending…",
+    "applyButton": "Apply selected",
+    "unapplyButton": "Remove",
+    "noSkillsSelected": "No skills selected",
+    "diffEmpty": "No changes",
+    "diffAdded": "Added",
+    "diffRemoved": "Removed",
+    "status": {
+      "appliedCount": "{{count}} applied",
+      "notInitialized": "not initialized"
+    },
+    "tabs": {
+      "applied": "Applied ({{count}})",
+      "addSkills": "Add skills",
+      "aiRecommend": "AI recommend",
+      "rulesAndSync": "Rules & sync"
+    },
+    "applied": {
+      "columns": {
+        "name": "Name",
+        "linkedAs": "Linked as",
+        "source": "Source"
+      },
+      "empty": {
+        "headline": "No skills applied yet",
+        "description": "Open the \"Add skills\" tab to pick from the library."
+      },
+      "removeConfirm": "Remove \"{{name}}\"?"
+    },
+    "add": {
+      "computingDiff": "Computing diff…",
+      "preview": "Preview ({{count}})",
+      "appliedLabel": "applied"
+    },
+    "diff": {
+      "reviewChanges": "Review changes",
+      "unknownIds": "Unknown skill ids: {{ids}}"
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "subtitle": "All SKILL.md discovered by scan",
+    "allSkills": "All skills",
+    "countOf": "{{filtered}} of {{total}} skills",
+    "matching": "matching \"{{query}}\"",
+    "refreshing": "Refreshing…",
+    "search": "Search skills…",
+    "noResults": "No skills match",
+    "parseWarningTitle": "{{count}} skills failed to parse",
+    "empty": {
+      "headline": "No skills in this path",
+      "description": "Pick another folder in the sidebar, or clear the search."
+    },
+    "treeAriaLabel": "Skills tree",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "filter": {
+      "allSources": "All sources",
+      "user": "User",
+      "custom": "Custom",
+      "userLocal": "Local",
+      "plugin": "Plugin"
+    },
+    "table": {
+      "name": "Name",
+      "source": "Source",
+      "description": "Description",
+      "lastModified": "Last modified"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "AI provider, scan paths, and platform diagnostics",
+    "sections": {
+      "ai": "AI configuration",
+      "userSkillsDir": "User skills directory",
+      "scanPaths": "Scan paths",
+      "platform": "Platform",
+      "language": "Language"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Switch the UI language. Applies on reload and is saved locally.",
+      "label": "Language",
+      "options": {
+        "zh": "中文（简体）",
+        "en": "English"
+      }
+    },
+    "ai": {
+      "title": "AI configuration",
+      "requestStyle": "Request style",
+      "requestStyleHint": "Both styles share the same response parser.",
+      "endpoint": "Endpoint URL",
+      "model": "Model",
+      "apiKeyEnv": "API key env var",
+      "apiKeyEnvHint": "Preferred — key read from this environment variable at runtime.",
+      "apiKey": "API key",
+      "apiKeyHint": "Fallback — stored in plaintext in ~/.loom/db.json. Prefer env var.",
+      "systemPrompt": "Custom system prompt",
+      "systemPromptHint": "Overrides the default system prompt when set.",
+      "testConnection": "Test connection",
+      "testing": "Testing…",
+      "testOk": "OK · {{latency}}ms",
+      "testFail": "FAIL"
+    },
+    "userSkills": {
+      "title": "User skills directory",
+      "description": "Where your own authored skills live. Loom links curated skills into projects on Apply.",
+      "currentPath": "Current path",
+      "setPath": "Set directory",
+      "openPath": "Open",
+      "reset": "Reset to default",
+      "cardDescription": "Loom-managed location for your own skills. Auto-scanned and shown under the <code>user-local</code> source.",
+      "openFolder": "Open folder",
+      "saved": "Saved.",
+      "createTitle": "Create a new skill",
+      "createStep1Prefix": "1. In Claude Code, run the command below (replace ",
+      "createStep1Suffix": ").",
+      "createStep2Prefix": "2. Return here and click ",
+      "createStep2Bold": "Refresh",
+      "createStep2Suffix": " on the Skills Library.",
+      "copyCommand": "Copy command"
+    },
+    "scanPaths": {
+      "title": "Scan paths",
+      "description": "One path per line. Defaults cover ~/.claude skills and plugins."
+    },
+    "platform": {
+      "title": "Platform",
+      "os": "OS",
+      "node": "Node",
+      "linkMethod": "Link method",
+      "loading": "Loading…"
+    }
+  },
+  "sources": {
+    "bannerTitle": "Upstream updates",
+    "bannerDescription": "{{count}} sources have new SKILL.md entries.",
+    "bannerLabel": "Sources",
+    "bannerGitBacked": "{{count}} git-backed",
+    "bannerHasUpdates": "{{count}} have updates",
+    "viewButton": "View",
+    "pullButton": "Pull",
+    "checkButton": "Check",
+    "checking": "Checking…",
+    "pulling": "Pulling…",
+    "upToDate": "All up to date",
+    "errors": "Errors",
+    "drawerTitle": "Source updates",
+    "refreshNow": "Refresh now",
+    "lastChecked": "Last checked {{time}}",
+    "behindUpstream": "Behind upstream ({{count}})",
+    "upToDateSection": "Up to date ({{count}})",
+    "errorsSection": "Errors ({{count}})",
+    "status": {
+      "dirty": "dirty",
+      "commitBehindOne": "{{count}} commit behind",
+      "commitBehindMany": "{{count}} commits behind",
+      "commitAheadOne": "{{count}} commit ahead (local)",
+      "commitAheadMany": "{{count}} commits ahead (local)"
+    },
+    "duration": {
+      "justNow": "just now",
+      "minAgo": "{{count}} min ago",
+      "hAgo": "{{count}} h ago",
+      "dAgo": "{{count}} d ago"
+    }
+  },
+  "rules": {
+    "title": "Project rules",
+    "description": "Intent layer — what skills this project needs. Commit to git.",
+    "includeLabel": "Force include",
+    "excludeLabel": "Force exclude",
+    "saveRules": "Save rules",
+    "rulesSaved": "Rules saved",
+    "syncByRules": "Sync by rules",
+    "syncPreview": "Sync preview"
+  },
+  "ai": {
+    "panel": {
+      "projectHint": "Project hint",
+      "projectHintPlaceholder": "Full-stack React + Supabase app with auth and billing.",
+      "keywords": "Keywords (comma-separated)",
+      "keywordsPlaceholder": "react, supabase, auth",
+      "includes": "Includes (skill ids or names)",
+      "excludes": "Excludes",
+      "aiGuidance": "AI guidance",
+      "aiGuidancePlaceholder": "Prefer skills focused on testing and debugging.",
+      "generate": "Generate recommendations",
+      "generating": "Generating…",
+      "saveAndPreview": "Save rules & preview apply",
+      "recommendations": "Recommendations",
+      "why": "Why: {{reason}}"
+    }
+  },
+  "diff": {
+    "add": "Add",
+    "keep": "Keep",
+    "remove": "Remove",
+    "none": "none"
+  },
+  "errors": {
+    "generic": "An error occurred: {{message}}",
+    "network": "Network error — check your connection to the server.",
+    "unknown": "Unknown error"
+  }
+}

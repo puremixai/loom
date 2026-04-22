@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSkills } from '@/api/skills';
 import { useSkillTree } from '@/hooks/useSkillTree';
 import { SkillTree } from '@/components/SkillTree';
@@ -9,6 +10,7 @@ import { SourceUpdatesBanner } from '@/components/SourceUpdatesBanner';
 import type { Skill } from '@loom/shared';
 
 export function SkillsPage() {
+  const { t } = useTranslation();
   const [q, setQ] = useState('');
   const { data, isLoading, refetch, isFetching } = useSkills();
   const skills = data?.skills ?? [];
@@ -23,7 +25,7 @@ export function SkillsPage() {
     );
   }, [visibleSkills, q]);
 
-  const currentLabel = selectedKey === tree.key ? 'All skills' : selectedKey.split('/').pop()!;
+  const currentLabel = selectedKey === tree.key ? t('skills.allSkills') : selectedKey.split('/').pop()!;
 
   return (
     <div className="flex gap-8">
@@ -38,26 +40,26 @@ export function SkillsPage() {
               {currentLabel}
             </h1>
             <p className="mt-1.5 text-sm text-ink-500">
-              {filtered.length} of {skills.length} skills
-              {q.trim() && <> matching "{q.trim()}"</>}
+              {t('skills.countOf', { filtered: filtered.length, total: skills.length })}
+              {q.trim() && <> {t('skills.matching', { query: q.trim() })}</>}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Input placeholder="Search…" value={q} onChange={e => setQ(e.target.value)} className="w-80" />
+            <Input placeholder={t('common.search')} value={q} onChange={e => setQ(e.target.value)} className="w-80" />
             <Button variant="secondary" onClick={() => refetch()} disabled={isFetching}>
-              {isFetching ? 'Refreshing…' : 'Refresh'}
+              {isFetching ? t('skills.refreshing') : t('common.refresh')}
             </Button>
           </div>
         </div>
 
         <SourceUpdatesBanner />
 
-        {isLoading && <p className="text-sm text-ink-500">Loading…</p>}
+        {isLoading && <p className="text-sm text-ink-500">{t('common.loading')}</p>}
 
         {data?.warnings.length ? (
           <div className="rounded-lg bg-badge-yellow-bg p-4 shadow-ring-light">
             <p className="text-sm font-medium text-badge-yellow-text">
-              {data.warnings.length} skills failed to parse
+              {t('skills.parseWarningTitle', { count: data.warnings.length })}
             </p>
             <p className="mt-1 font-mono text-xs text-badge-yellow-text/80">{data.warnings[0]}</p>
           </div>
@@ -65,8 +67,8 @@ export function SkillsPage() {
 
         {!isLoading && filtered.length === 0 && (
           <div className="rounded-lg bg-white py-16 text-center shadow-border">
-            <p className="text-base text-ink-900">No skills in this path</p>
-            <p className="mt-1 text-sm text-ink-500">Pick another folder in the sidebar, or clear the search.</p>
+            <p className="text-base text-ink-900">{t('skills.empty.headline')}</p>
+            <p className="mt-1 text-sm text-ink-500">{t('skills.empty.description')}</p>
           </div>
         )}
 

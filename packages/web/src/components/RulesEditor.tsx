@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Editor from '@monaco-editor/react';
+import { useTranslation } from 'react-i18next';
 import { useRules, useSaveRules } from '@/api/rules';
 import { apiFetch } from '@/api/client';
 import { useApply, useDiffPreview } from '@/api/projects';
@@ -39,6 +40,7 @@ aiGuidance: ""
 }
 
 export function RulesEditor({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const { data: rulesRes } = useRules(projectId);
   const [text, setText] = useState<string>('');
   const [err, setErr] = useState<string | null>(null);
@@ -89,16 +91,16 @@ export function RulesEditor({ projectId }: { projectId: string }) {
       {err && <p className="text-xs text-ship-red">{err}</p>}
       <div className="flex items-center gap-2">
         <Button onClick={save} disabled={saveMut.isPending}>
-          {saveMut.isPending ? 'Saving…' : 'Save rules'}
+          {saveMut.isPending ? t('common.saving') : t('rules.saveRules')}
         </Button>
         <Button variant="secondary" onClick={runSync}>
-          Sync by rules
+          {t('rules.syncByRules')}
         </Button>
       </div>
 
       <Dialog open={diffOpen} onOpenChange={setDiffOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Sync preview</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('rules.syncPreview')}</DialogTitle></DialogHeader>
           {diffMut.data && <DiffPreview diff={diffMut.data} />}
           {syncResult?.warnings.length ? (
             <div className="mt-3 rounded-lg bg-badge-yellow-bg p-3 shadow-ring-light">
@@ -108,9 +110,9 @@ export function RulesEditor({ projectId }: { projectId: string }) {
             </div>
           ) : null}
           <div className="mt-4 flex justify-end gap-2">
-            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
+            <DialogClose asChild><Button variant="secondary">{t('common.cancel')}</Button></DialogClose>
             <Button onClick={confirmApply} disabled={applyMut.isPending}>
-              {applyMut.isPending ? 'Applying…' : 'Apply'}
+              {applyMut.isPending ? t('common.applying') : t('common.apply')}
             </Button>
           </div>
         </DialogContent>

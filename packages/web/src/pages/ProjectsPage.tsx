@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAddProject, useProjects, useRemoveProject } from '@/api/projects';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { LoomLogo } from '@/components/ui/loom-icon';
 
 export function ProjectsPage() {
+  const { t } = useTranslation();
   const { data, isLoading } = useProjects();
   const addMut = useAddProject();
   const removeMut = useRemoveProject();
@@ -30,35 +32,35 @@ export function ProjectsPage() {
       <div className="flex items-end justify-between gap-6">
         <div>
           <h1 className="font-semibold leading-tight tracking-heading text-ink-900" style={{ fontSize: '32px' }}>
-            Projects
+            {t('projects.title')}
           </h1>
           <p className="mt-1.5 text-sm text-ink-500">
-            {data?.length ?? 0} registered · manage per-project skill sets
+            {t('projects.subtitleCount', { count: data?.length ?? 0 })}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Add Project</Button>
+            <Button>{t('projects.addButton')}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add a project</DialogTitle>
+              <DialogTitle>{t('projects.addDialog.titleAlt')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <label className="block">
-                <span className="text-sm font-medium text-ink-900">Path</span>
-                <p className="mt-0.5 text-xs text-ink-500">Absolute path to the project directory</p>
-                <Input className="mt-2 font-mono text-xs" value={path} onChange={e => setPath(e.target.value)} placeholder="C:/path/to/project" />
+                <span className="text-sm font-medium text-ink-900">{t('projects.addDialog.pathLabel')}</span>
+                <p className="mt-0.5 text-xs text-ink-500">{t('projects.addDialog.pathHint')}</p>
+                <Input className="mt-2 font-mono text-xs" value={path} onChange={e => setPath(e.target.value)} placeholder={t('projects.addDialog.pathPlaceholderShort')} />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-ink-900">Name <span className="text-ink-400">(optional)</span></span>
-                <Input className="mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="Defaults to directory name" />
+                <span className="text-sm font-medium text-ink-900">{t('projects.addDialog.nameLabel')} <span className="text-ink-400">{t('projects.addDialog.nameOptional')}</span></span>
+                <Input className="mt-2" value={name} onChange={e => setName(e.target.value)} placeholder={t('projects.addDialog.nameDefaultHint')} />
               </label>
               {err && <p className="text-xs text-ship-red">{err}</p>}
               <div className="flex justify-end gap-2 pt-2">
-                <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
+                <DialogClose asChild><Button variant="secondary">{t('common.cancel')}</Button></DialogClose>
                 <Button onClick={handleAdd} disabled={addMut.isPending || path.trim().length === 0}>
-                  {addMut.isPending ? 'Adding…' : 'Add'}
+                  {addMut.isPending ? t('projects.addDialog.submitting') : t('projects.addDialog.submit')}
                 </Button>
               </div>
             </div>
@@ -66,15 +68,15 @@ export function ProjectsPage() {
         </Dialog>
       </div>
 
-      {isLoading && <p className="text-sm text-ink-500">Loading…</p>}
+      {isLoading && <p className="text-sm text-ink-500">{t('common.loading')}</p>}
 
       {data?.length === 0 && !isLoading && (
         <div className="rounded-lg bg-white py-16 text-center shadow-border">
           <div className="flex justify-center mb-5">
             <LoomLogo size="lg" />
           </div>
-          <p className="text-base text-ink-900">No projects registered yet</p>
-          <p className="mt-1 text-sm text-ink-500">Click "Add Project" above to get started.</p>
+          <p className="text-base text-ink-900">{t('projects.empty.headlineAlt')}</p>
+          <p className="mt-1 text-sm text-ink-500">{t('projects.empty.descriptionAlt')}</p>
         </div>
       )}
 
@@ -95,16 +97,16 @@ export function ProjectsPage() {
               <p className="truncate font-mono text-xs text-ink-500" title={p.path}>{p.path}</p>
               {p.lastSyncedAt && (
                 <p className="text-xs text-ink-500">
-                  Last synced: {new Date(p.lastSyncedAt).toLocaleString()}
+                  {t('projects.lastSynced', { date: new Date(p.lastSyncedAt).toLocaleString() })}
                 </p>
               )}
               <div className="pt-1">
                 <Button
                   size="sm" variant="ghost"
-                  onClick={() => { if (confirm(`Remove "${p.name}" from the list? Files in the project directory are not deleted.`)) removeMut.mutate(p.id); }}
+                  onClick={() => { if (confirm(t('projects.removeConfirm', { name: p.name }))) removeMut.mutate(p.id); }}
                   className="text-ink-500 hover:text-ship-red hover:bg-white"
                 >
-                  Remove
+                  {t('common.remove')}
                 </Button>
               </div>
             </CardContent>
