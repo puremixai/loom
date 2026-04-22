@@ -1,6 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod dialog;
 mod sidecar;
+mod tray;
 
 use sidecar::Sidecar;
 use tauri::Manager;
@@ -14,16 +16,18 @@ fn main() {
             log::info!("Loom desktop starting");
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                // Resolve the bundled web SPA — shipped as a Tauri resource
-                // (see `bundle.resources` in tauri.conf.json, mapped to
-                // `web-dist/` inside the resource dir). The sidecar reads
-                // this path from `LOOM_WEB_DIST` and serves index.html +
-                // assets from there (see packages/server/src/utils/static.ts).
+                // Resolve the bundled web SPA shipped as a Tauri resource
+                // (see `bundle.resources` in tauri.conf.json). The sidecar
+                // reads this path from LOOM_WEB_DIST and serves index.html
+                // + assets from there (see packages/server/src/utils/static.ts).
                 let web_dist = match handle.path().resource_dir() {
                     Ok(dir) => dir.join("web-dist"),
                     Err(e) => {
                         log::error!("resource_dir lookup failed: {e:?}");
-                        handle.exit(1);
+                        dialog::show_fatal(
+                            &handle,
+                            &format!("Failed to locate bundled web assets:\n\n{e}"),
+                        );
                         return;
                     }
                 };
@@ -46,12 +50,20 @@ fn main() {
                             }
                             window.show().ok();
                         }
+
+                        if let Err(e) = tray::install(&handle) {
+                            // Tray failure is non-fatal: the user can still
+                            // use the app via the window, just without the
+                            // tray menu entry points.
+                            log::error!("tray install failed: {e:?}");
+                        }
                     }
                     Err(e) => {
-                        // Minimal fail-fast. Task 14 replaces this with a
-                        // user-facing error dialog before exit.
                         log::error!("sidecar startup failed: {e:?}");
-                        handle.exit(1);
+                        dialog::show_fatal(
+                            &handle,
+                            &format!("Failed to start Loom server:\n\n{e}"),
+                        );
                     }
                 }
             });

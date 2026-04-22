@@ -87,7 +87,6 @@ fn navigate_to(app: &AppHandle, url: &str) -> Result<()> {
 }
 
 /// Show a fatal error dialog then exit. Used by startup failures.
-#[allow(dead_code)]
 pub fn show_fatal(app: &AppHandle, msg: &str) {
     app.dialog()
         .message(msg)
