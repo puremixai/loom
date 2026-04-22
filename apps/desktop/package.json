@@ -1,0 +1,16 @@
+{
+  "name": "@loom/desktop",
+  "version": "0.2.3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "desktop:build": "tauri build",
+    "sidecar:build": "node scripts/build-sidecar.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.0.0",
+    "esbuild": "0.24.0",
+    "postject": "1.0.0-alpha.6"
+  }
+}

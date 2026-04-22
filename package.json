@@ -13,7 +13,10 @@
     "start:prod": "pnpm -r run build && pnpm --filter @loom/server start",
     "test": "pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
-    "lint": "pnpm -r run lint"
+    "lint": "pnpm -r run lint",
+    "desktop:dev": "pnpm --filter @loom/desktop tauri dev",
+    "desktop:build": "pnpm --filter @loom/desktop desktop:build",
+    "desktop:sidecar": "pnpm --filter @loom/desktop sidecar:build"
   },
   "devDependencies": {
     "typescript": "5.6.3",

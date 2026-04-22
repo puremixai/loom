@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loom · Logo 设计方向</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-family: 'Geist', Arial, sans-serif;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      background: #fff;
+      color: #171717;
+    }
+
+    body { padding: 48px 40px; max-width: 1000px; margin: 0 auto; }
+
+    .page-title {
+      font-size: 28px; font-weight: 600;
+      letter-spacing: -1.12px; color: #171717; margin-bottom: 6px;
+    }
+    .page-subtitle { font-size: 14px; color: #666; margin-bottom: 48px; }
+
+    .section-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #aaa; margin-bottom: 20px;
+    }
+
+    /* ── Card grid ── */
+    .concepts-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px; margin-bottom: 56px;
+    }
+
+    .concept-card {
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04), inset 0 0 0 1px #fafafa;
+      overflow: hidden; cursor: pointer;
+      transition: box-shadow 0.12s ease;
+      user-select: none;
+    }
+    .concept-card:hover {
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.07), inset 0 0 0 1px #fafafa;
+    }
+    .concept-card.selected {
+      box-shadow: 0 0 0 2px #0a72ef, 0 4px 16px rgba(10,114,239,0.10), inset 0 0 0 1px rgba(10,114,239,0.05);
+    }
+
+    .card-preview {
+      background: #f5f5f5;
+      height: 190px;
+      display: flex; align-items: center; justify-content: center;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .check-badge {
+      display: none; position: absolute; top: 12px; right: 12px;
+      width: 22px; height: 22px; background: #0a72ef;
+      border-radius: 50%; align-items: center; justify-content: center;
+    }
+    .concept-card.selected .check-badge { display: flex; }
+
+    .card-body { padding: 16px 18px; background: #fff; }
+
+    .option-tag {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #aaa; margin-bottom: 4px;
+    }
+    .card-title { font-size: 14px; font-weight: 600; color: #171717; margin-bottom: 4px; letter-spacing: -0.2px; }
+    .card-desc { font-size: 12px; color: #666; line-height: 1.55; }
+
+    /* ── Option A: Wordmark ── */
+    .logo-a {
+      font-family: 'Geist', sans-serif;
+      font-size: 42px; font-weight: 600;
+      letter-spacing: -0.06em; color: #171717; line-height: 1;
+    }
+    .logo-a .oo { color: #0a72ef; }
+
+    /* ── Option B: Icon + Wordmark ── */
+    .logo-b { display: flex; align-items: center; gap: 13px; }
+    .logo-b-text {
+      font-family: 'Geist', sans-serif;
+      font-size: 30px; font-weight: 600;
+      letter-spacing: -0.05em; color: #171717; line-height: 1;
+    }
+
+    /* ── Option C: Lettermark ── */
+    .logo-c { display: flex; align-items: center; gap: 13px; }
+    .logo-c-mark {
+      width: 44px; height: 44px; background: #171717;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-c-text {
+      font-family: 'Geist', sans-serif;
+      font-size: 30px; font-weight: 600;
+      letter-spacing: -0.05em; color: #171717; line-height: 1;
+    }
+
+    /* ── Navbar previews ── */
+    .navbar-section { margin-bottom: 56px; }
+    .navbar-row { margin-bottom: 16px; }
+    .navbar-row-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #bbb; margin-bottom: 8px;
+    }
+    .mock-navbar {
+      height: 56px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.07), inset 0 -1px 0 rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.95);
+      display: flex; align-items: center; gap: 32px;
+      padding: 0 24px; border-radius: 8px;
+    }
+    .mock-nav-links { display: flex; gap: 20px; }
+    .mock-nav-link { font-size: 14px; color: #999; }
+    .mock-nav-link.active { font-weight: 500; color: #171717; }
+
+    /* nav logo variants */
+    .nav-a {
+      font-family: 'Geist', sans-serif;
+      font-size: 15px; font-weight: 600; letter-spacing: -0.04em; color: #171717;
+    }
+    .nav-a .oo { color: #0a72ef; }
+
+    .nav-b { display: flex; align-items: center; gap: 8px; }
+    .nav-b-text { font-size: 15px; font-weight: 600; letter-spacing: -0.04em; color: #171717; }
+
+    .nav-c { display: flex; align-items: center; gap: 8px; }
+    .nav-c-mark {
+      width: 24px; height: 24px; background: #171717;
+      border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .nav-c-text { font-size: 15px; font-weight: 600; letter-spacing: -0.04em; color: #171717; }
+
+    /* ── Splash context ── */
+    .splash-section { margin-bottom: 56px; }
+    .splash-previews { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .splash-card {
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.03);
+      padding: 40px 24px; background: #fff;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .splash-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; color: #666; text-align: center; line-height: 1.6;
+    }
+
+    /* ── Notice ── */
+    #notice {
+      display: none; margin-top: 24px;
+      padding: 12px 16px; background: #ebf5ff;
+      border-radius: 6px; font-size: 13px; color: #0068d6; font-weight: 500;
+      box-shadow: 0 0 0 1px rgba(10,114,239,0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="page-title">Loom · Logo 设计方向</h1>
+  <p class="page-subtitle">3 种设计思路 — 点击卡片选择你偏好的方向</p>
+
+  <!-- ── Large display ── -->
+  <div class="section-label">大尺寸 · Splash / 封面</div>
+  <div class="concepts-grid">
+
+    <!-- A: Wordmark -->
+    <div class="concept-card" id="card-a" onclick="pick('a')">
+      <div class="card-preview">
+        <div class="check-badge">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="logo-a">l<span class="oo">oo</span>m</div>
+      </div>
+      <div class="card-body">
+        <div class="option-tag">Option A</div>
+        <div class="card-title">纯字标 Wordmark</div>
+        <div class="card-desc">Geist 600，双 "o" 染品牌蓝，极度紧凑的字距传递工程感</div>
+      </div>
+    </div>
+
+    <!-- B: Weave icon + wordmark -->
+    <div class="concept-card" id="card-b" onclick="pick('b')">
+      <div class="card-preview">
+        <div class="check-badge">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="logo-b">
+          <!-- Weave icon: 3 warp + 3 weft threads -->
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Warp threads (vertical, dark) -->
+            <line x1="13" y1="6"  x2="13" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="22" y1="6"  x2="22" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="6"  x2="31" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Weft threads (horizontal, blue) – drawn over warp to show weave depth -->
+            <!-- Row 1: passes UNDER v1, OVER v2, UNDER v3 -->
+            <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Row 2: passes OVER v1, UNDER v2, OVER v3 -->
+            <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- cover v2 intersection -->
+            <line x1="20" y1="22" x2="29" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="29" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Row 3: passes UNDER v1, OVER v2, UNDER v3 -->
+            <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- White covers: warp on top at v1/r1, v3/r1, v2/r2, v1/r3, v3/r3 -->
+            <rect x="11" y="13" width="4" height="4" fill="#f5f5f5" rx="0.5"/>
+            <rect x="29" y="13" width="4" height="4" fill="#f5f5f5" rx="0.5"/>
+            <rect x="20" y="20" width="4" height="4" fill="#f5f5f5" rx="0.5"/>
+            <rect x="11" y="27" width="4" height="4" fill="#f5f5f5" rx="0.5"/>
+            <rect x="29" y="27" width="4" height="4" fill="#f5f5f5" rx="0.5"/>
+          </svg>
+          <span class="logo-b-text">loom</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="option-tag">Option B</div>
+        <div class="card-title">图标 + 字标</div>
+        <div class="card-desc">经纬织物图标隐喻技能编排，直观表达 loom 本义</div>
+      </div>
+    </div>
+
+    <!-- C: Lettermark + wordmark -->
+    <div class="concept-card" id="card-c" onclick="pick('c')">
+      <div class="card-preview">
+        <div class="check-badge">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="logo-c">
+          <div class="logo-c-mark">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 5V19H17" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="logo-c-text">loom</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="option-tag">Option C</div>
+        <div class="card-title">字母标 Lettermark</div>
+        <div class="card-desc">几何 L mark 黑底白线，小尺寸辨识度极强，兼作 favicon / 应用图标</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Navbar previews ── -->
+  <div class="navbar-section">
+    <div class="section-label">导航栏尺寸预览</div>
+
+    <div class="navbar-row">
+      <div class="navbar-row-label">Option A</div>
+      <div class="mock-navbar">
+        <div class="nav-a">l<span class="oo">oo</span>m</div>
+        <div class="mock-nav-links">
+          <span class="mock-nav-link active">Projects</span>
+          <span class="mock-nav-link">Skills</span>
+          <span class="mock-nav-link">Settings</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-row">
+      <div class="navbar-row-label">Option B</div>
+      <div class="mock-navbar">
+        <div class="nav-b">
+          <svg width="20" height="20" viewBox="0 0 44 44" fill="none">
+            <line x1="13" y1="6"  x2="13" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="22" y1="6"  x2="22" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="31" y1="6"  x2="31" y2="38" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.5" stroke-linecap="round"/>
+            <rect x="11" y="13" width="4" height="4" fill="#fff"/>
+            <rect x="29" y="13" width="4" height="4" fill="#fff"/>
+            <rect x="20" y="20" width="4" height="4" fill="#fff"/>
+            <rect x="11" y="27" width="4" height="4" fill="#fff"/>
+            <rect x="29" y="27" width="4" height="4" fill="#fff"/>
+          </svg>
+          <span class="nav-b-text">loom</span>
+        </div>
+        <div class="mock-nav-links">
+          <span class="mock-nav-link active">Projects</span>
+          <span class="mock-nav-link">Skills</span>
+          <span class="mock-nav-link">Settings</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-row">
+      <div class="navbar-row-label">Option C</div>
+      <div class="mock-navbar">
+        <div class="nav-c">
+          <div class="nav-c-mark">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M7 5V19H17" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="nav-c-text">loom</span>
+        </div>
+        <div class="mock-nav-links">
+          <span class="mock-nav-link active">Projects</span>
+          <span class="mock-nav-link">Skills</span>
+          <span class="mock-nav-link">Settings</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Splash / empty state context ── -->
+  <div class="splash-section">
+    <div class="section-label">空白页 / 加载页场景</div>
+    <div class="splash-previews">
+
+      <div class="splash-card">
+        <div class="logo-a" style="font-size:32px;">l<span class="oo">oo</span>m</div>
+        <div class="splash-label">Skill manager for<br>Claude Code</div>
+      </div>
+
+      <div class="splash-card">
+        <div class="logo-b" style="flex-direction:column; gap:12px; align-items:center;">
+          <svg width="48" height="48" viewBox="0 0 44 44" fill="none">
+            <line x1="13" y1="6"  x2="13" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="22" y1="6"  x2="22" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="6"  x2="31" y2="38" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="15" x2="11" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="29" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="15" x2="38" y2="15" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="22" x2="15" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="29" x2="11" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="15" y1="29" x2="29" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="33" y1="29" x2="38" y2="29" stroke="#0a72ef" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="11" y="13" width="4" height="4" fill="#fff"/>
+            <rect x="29" y="13" width="4" height="4" fill="#fff"/>
+            <rect x="20" y="20" width="4" height="4" fill="#fff"/>
+            <rect x="11" y="27" width="4" height="4" fill="#fff"/>
+            <rect x="29" y="27" width="4" height="4" fill="#fff"/>
+          </svg>
+          <div class="logo-b-text" style="font-size:22px;">loom</div>
+        </div>
+        <div class="splash-label">Skill manager for<br>Claude Code</div>
+      </div>
+
+      <div class="splash-card">
+        <div class="logo-c" style="flex-direction:column; gap:12px; align-items:center;">
+          <div class="logo-c-mark" style="width:52px;height:52px;border-radius:12px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M7 5V19H17" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="logo-c-text" style="font-size:22px;">loom</span>
+        </div>
+        <div class="splash-label">Skill manager for<br>Claude Code</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="notice"></div>
+
+  <script>
+    function pick(c) {
+      ['a','b','c'].forEach(x => document.getElementById('card-' + x).classList.remove('selected'));
+      document.getElementById('card-' + c).classList.add('selected');
+      const labels = { a: 'A · 纯字标', b: 'B · 图标+字标', c: 'C · 字母标' };
+      const n = document.getElementById('notice');
+      n.style.display = 'block';
+      n.innerHTML = '✓ 已选择 <strong>' + labels[c] + '</strong> — 在对话框告诉我想法或调整细节';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - 'v*-desktop'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-2022
+            sidecar_target: node22-win-x64
+            artifacts_glob: |
+              apps/desktop/src-tauri/target/release/bundle/msi/*.msi
+              apps/desktop/src-tauri/target/release/bundle/nsis/*.exe
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 'apps/desktop/src-tauri -> target'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared/server/web
+        run: pnpm build
+
+      # Tauri's beforeBuildCommand runs `pnpm run sidecar:build` in
+      # apps/desktop, so the SEA exe is produced automatically as
+      # part of `pnpm desktop:build` below. This explicit step makes
+      # the target override visible in logs and catches sidecar
+      # failures before Cargo starts.
+      - name: Build sidecar binary
+        env:
+          SIDECAR_TARGET: ${{ matrix.sidecar_target }}
+        run: pnpm --filter @loom/desktop sidecar:build
+
+      - name: Build Tauri app (msi + nsis)
+        run: pnpm --filter @loom/desktop desktop:build
+
+      - name: Attach installers to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: ${{ matrix.artifacts_glob }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          fail_on_unmatched_files: false
