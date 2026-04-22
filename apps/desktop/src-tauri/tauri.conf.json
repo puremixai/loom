@@ -5,7 +5,7 @@
   "identifier": "dev.puremixai.loom",
   "build": {
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "pnpm run desktop:sidecar",
+    "beforeBuildCommand": "pnpm run sidecar:build",
     "frontendDist": "../../../packages/web/dist"
   },
   "app": {
