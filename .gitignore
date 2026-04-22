@@ -25,6 +25,11 @@ coverage/
 # TypeScript build info (incremental compile cache)
 *.tsbuildinfo
 
+# tsc emit side effects under web source — packages/web builds via vite,
+# and `tsc -b` in the build script is only for type checking. Any .js
+# that appears next to a .tsx/.ts in src/ is an accidental emit.
+packages/web/src/**/*.js
+
 # Local PR body drafts (not committed; paste into GitHub PR)
 PR_BODY.md
 
