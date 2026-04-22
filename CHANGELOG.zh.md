@@ -4,6 +4,21 @@
 
 English version: [CHANGELOG.md](CHANGELOG.md)
 
+## [0.4.0] — 2026-04-22
+
+### 新功能
+
+- 🌐 **国际化（中文默认 + 英文）** 上线。新 `react-i18next` 基础设施位于 [`packages/web/src/i18n/`](packages/web/src/i18n/)，`en.json` / `zh.json` 两份 locale 文件结构完全一致，包含 11 个命名空间 × 222 个 key。UI 默认中文（`zh`），通过 **Settings → 界面语言** 切换英文，选择保存在 `localStorage`（`loom-lang`）。nav、Projects、项目详情、Skills、Settings、规则编辑器、差异预览、AI 推荐面板、源更新横幅/抽屉、技能树——所有用户可见字符串全部走 `t()` 调用。
+
+### 样式
+
+- 🧵 **导航栏 logo** 从 `sm`（图标 20px / 文字 15px）调大到 `md`（24px / 20px）。之前在 56px 高度的 nav 里读起来偏小，`md` 的密度跟 Vercel / Linear 类似，不用把 nav 撑高。
+- 📝 **顶层 READMEs** 压缩到原来的一半长度（165 → 90 行左右）。每个分区标题和列表项都带 emoji，顶部链接行加了语言/文档旗帜、桌面版特别标注；砍掉了「本地优先」的宣传框架，实质内容（快速开始、用法、隐私表格、架构、开发、Windows 说明）全部保留。
+
+### 维护
+
+- 🧹 `packages/web/src/**/*.js` 加入 gitignore。`tsc -b && vite build` 之前会把编译出来的 JS 静默放在 `.tsx` 源码旁边；上次 commit 把 38 个这样的 emit 误扫进了历史。现在删掉 + [`.gitignore`](.gitignore) 加规则，以后 `pnpm build` 再跑也不会污染。
+
 ## [0.3.0] — 2026-04-22
 
 ### 新功能

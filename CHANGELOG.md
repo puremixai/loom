@@ -4,6 +4,21 @@ All notable changes to **Loom** are documented here. Format loosely follows [Kee
 
 中文版: [CHANGELOG.zh.md](CHANGELOG.zh.md)
 
+## [0.4.0] — 2026-04-22
+
+### Features
+
+- 🌐 **Internationalization (Chinese default + English)** for the web UI. New `react-i18next` setup under [`packages/web/src/i18n/`](packages/web/src/i18n/) with 11 namespaces × 222 keys across `en.json` / `zh.json`. UI defaults to Chinese (`zh`); users switch via **Settings → 界面语言**, preference persists in `localStorage` (`loom-lang`). Every user-facing string in the nav, Projects, Project Detail, Skills, Settings, rules editor, diff preview, AI recommend panel, source updates banner/drawer, and skill tree now routes through `t()`.
+
+### Style
+
+- 🧵 **Nav logo** upscaled from `sm` (icon 20px / wordmark 15px) to `md` (24px / 20px) — reads clearly at the 56px nav bar height without pushing layout.
+- 📝 **Top-level READMEs** trimmed to roughly half their previous length (165 → ~90 lines). Emoji markers on every section + bullet, language/doc flags in the top links row, desktop-app callout surfaced. The "local-first" framing was dropped; substance preserved (quick start, usage, privacy table, architecture, dev, Windows notes).
+
+### Chore
+
+- 🧹 `packages/web/src/**/*.js` now gitignored. The `tsc -b && vite build` script was silently emitting compiled JS alongside the `.tsx` sources; a prior commit accidentally swept 38 of them in. Deleted them and added the pattern to [`.gitignore`](.gitignore) so future `pnpm build` runs can't re-pollute history.
+
 ## [0.3.0] — 2026-04-22
 
 ### Features
