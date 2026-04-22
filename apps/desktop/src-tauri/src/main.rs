@@ -78,6 +78,26 @@ fn main() {
                 window.hide().ok();
             }
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri app");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri app")
+        .run(|app_handle, event| match event {
+            // Fired on tray Quit / app_handle.exit() / platform quit signal.
+            // Block on sidecar shutdown so the Node process is gone before
+            // Tauri tears down (prevents orphaned loom-server.exe lingering
+            // in Task Manager).
+            tauri::RunEvent::ExitRequested { .. } => {
+                if let Some(sc) = app_handle.try_state::<Sidecar>() {
+                    tauri::async_runtime::block_on(async {
+                        if let Err(e) = sc.shutdown().await {
+                            log::error!("sidecar shutdown: {e}");
+                        }
+                    });
+                }
+            }
+            // macOS-specific dock-click reactivation (RunEvent::Reopen in
+            // Tauri 1) was reshaped in Tauri 2 and is not a stable variant
+            // here. v1 ships Windows-only; macOS polish can be added when
+            // we wire up that platform with the correct 2.x API.
+            _ => {}
+        });
 }
