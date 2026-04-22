@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { FolderOpen } from 'lucide-react';
 import { useSettings, useSaveSettings } from '@/api/settings';
 import { usePlatform } from '@/api/platform';
 import { useOpenUserSkillsDir } from '@/api/user-skills-dir';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DirectoryPicker } from '@/components/DirectoryPicker';
 
 export function UserSkillsDirCard() {
   const { t } = useTranslation();
@@ -15,6 +17,7 @@ export function UserSkillsDirCard() {
   const open = useOpenUserSkillsDir();
 
   const [path, setPath] = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -51,8 +54,17 @@ export function UserSkillsDirCard() {
           />
         </p>
 
-        <div className="flex gap-2">
-          <Input className="font-mono text-xs" value={path} onChange={e => setPath(e.target.value)} placeholder="/home/you/.loom/skills" />
+        <div className="flex flex-wrap gap-2">
+          <Input className="min-w-[200px] flex-1 font-mono text-xs" value={path} onChange={e => setPath(e.target.value)} placeholder="/home/you/.loom/skills" />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setPickerOpen(true)}
+            className="shrink-0 gap-1.5"
+          >
+            <FolderOpen className="h-3.5 w-3.5" />
+            {t('directoryPicker.browse')}
+          </Button>
           <Button onClick={handleSave} disabled={save.isPending || path.trim() === effectivePath}>
             {save.isPending ? t('common.saving') : t('common.save')}
           </Button>
@@ -60,6 +72,12 @@ export function UserSkillsDirCard() {
             {open.isPending ? t('common.opening') : t('settings.userSkills.openFolder')}
           </Button>
         </div>
+        <DirectoryPicker
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          initialPath={path.trim() || undefined}
+          onSelect={(p) => setPath(p)}
+        />
 
         {err && <p className="text-xs text-ship-red">{err}</p>}
         {saved && <p className="text-xs text-badge-green-text">{t('settings.userSkills.saved')}</p>}

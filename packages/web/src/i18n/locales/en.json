@@ -286,6 +286,19 @@
     "remove": "Remove",
     "none": "none"
   },
+  "directoryPicker": {
+    "title": "Choose folder",
+    "browse": "Browse…",
+    "home": "Home",
+    "roots": "Drives",
+    "up": "Up",
+    "go": "Go",
+    "manualPathPlaceholder": "Type or paste an absolute path…",
+    "emptyFolder": "This folder contains no sub-directories.",
+    "selected": "Selected",
+    "noSelection": "No folder selected",
+    "selectThis": "Select this folder"
+  },
   "errors": {
     "generic": "An error occurred: {{message}}",
     "network": "Network error — check your connection to the server.",

@@ -70,6 +70,21 @@ export const CenterDbSchema = z.object({
 });
 export type CenterDb = z.infer<typeof CenterDbSchema>;
 
+export const FsBrowseEntrySchema = z.object({
+  name: z.string().min(1),
+  path: z.string().min(1),
+});
+export const FsBrowseResponseSchema = z.object({
+  cwd: z.string(),
+  parent: z.string().nullable(),
+  entries: z.array(FsBrowseEntrySchema),
+  separator: z.string(),
+  isRoot: z.boolean(),
+  home: z.string(),
+});
+export type FsBrowseEntry = z.infer<typeof FsBrowseEntrySchema>;
+export type FsBrowseResponse = z.infer<typeof FsBrowseResponseSchema>;
+
 export const ApplyRequestSchema = z.object({
   skillIds: z.array(z.string()).min(1),
 });

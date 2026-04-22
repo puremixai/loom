@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FolderOpen } from 'lucide-react';
 import { useAddProject, useProjects, useRemoveProject } from '@/api/projects';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { LoomLogo } from '@/components/ui/loom-icon';
+import { DirectoryPicker } from '@/components/DirectoryPicker';
 
 export function ProjectsPage() {
   const { t } = useTranslation();
@@ -17,6 +19,7 @@ export function ProjectsPage() {
   const [path, setPath] = useState('');
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   async function handleAdd() {
@@ -50,8 +53,30 @@ export function ProjectsPage() {
               <label className="block">
                 <span className="text-sm font-medium text-ink-900">{t('projects.addDialog.pathLabel')}</span>
                 <p className="mt-0.5 text-xs text-ink-500">{t('projects.addDialog.pathHint')}</p>
-                <Input className="mt-2 font-mono text-xs" value={path} onChange={e => setPath(e.target.value)} placeholder={t('projects.addDialog.pathPlaceholderShort')} />
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    className="font-mono text-xs"
+                    value={path}
+                    onChange={e => setPath(e.target.value)}
+                    placeholder={t('projects.addDialog.pathPlaceholderShort')}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setPickerOpen(true)}
+                    className="shrink-0 gap-1.5"
+                  >
+                    <FolderOpen className="h-3.5 w-3.5" />
+                    {t('directoryPicker.browse')}
+                  </Button>
+                </div>
               </label>
+              <DirectoryPicker
+                open={pickerOpen}
+                onOpenChange={setPickerOpen}
+                initialPath={path.trim() || undefined}
+                onSelect={(p) => setPath(p)}
+              />
               <label className="block">
                 <span className="text-sm font-medium text-ink-900">{t('projects.addDialog.nameLabel')} <span className="text-ink-400">{t('projects.addDialog.nameOptional')}</span></span>
                 <Input className="mt-2" value={name} onChange={e => setName(e.target.value)} placeholder={t('projects.addDialog.nameDefaultHint')} />

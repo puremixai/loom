@@ -286,6 +286,19 @@
     "remove": "移除",
     "none": "无"
   },
+  "directoryPicker": {
+    "title": "选择文件夹",
+    "browse": "浏览…",
+    "home": "主目录",
+    "roots": "根目录",
+    "up": "上一级",
+    "go": "跳转",
+    "manualPathPlaceholder": "输入或粘贴绝对路径…",
+    "emptyFolder": "此文件夹下没有子目录。",
+    "selected": "已选择",
+    "noSelection": "未选择文件夹",
+    "selectThis": "选择此文件夹"
+  },
   "errors": {
     "generic": "发生错误：{{message}}",
     "network": "网络错误，请检查与服务器的连接。",

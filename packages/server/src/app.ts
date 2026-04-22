@@ -10,6 +10,7 @@ import { syncRoutes } from './routes/sync.js';
 import { sourcesRoutes } from './routes/sources.js';
 import { platformRoutes } from './routes/platform.js';
 import { userSkillsDirRoutes } from './routes/user-skills-dir.js';
+import { fsRoutes } from './routes/fs.js';
 import { openCenterDb, type CenterDbStore } from './storage/center-db.js';
 import { resolveWebDist } from './utils/static.js';
 import { ensureUserSkillsDir } from './services/user-dir.js';
@@ -28,6 +29,16 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   const db = opts.db ?? await openCenterDb(opts.dbFile);
   await ensureUserSkillsDir(db);
 
+  // Register the error handler BEFORE plugins so child scopes inherit it.
+  // (In Fastify 5, plugins capture the parent's error handler at register
+  // time; setting this later leaves routes on the default serializer.)
+  app.setErrorHandler((err, _req, reply) => {
+    reply.status(err.statusCode ?? 500).send({
+      ok: false,
+      error: { code: err.code ?? 'INTERNAL_ERROR', message: err.message },
+    });
+  });
+
   await app.register(healthRoutes);
   await app.register(skillsRoutes({ db, cachePath: opts.cachePath }));
   await app.register(projectsRoutes({ db, cachePath: opts.cachePath }));
@@ -37,13 +48,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(syncRoutes({ db, cachePath: opts.cachePath }));
   await app.register(sourcesRoutes({ db, cachePath: opts.cachePath }));
   await app.register(platformRoutes({ db }));
-
-  app.setErrorHandler((err, _req, reply) => {
-    reply.status(err.statusCode ?? 500).send({
-      ok: false,
-      error: { code: err.code ?? 'INTERNAL_ERROR', message: err.message },
-    });
-  });
+  await app.register(fsRoutes);
 
   const webDist = resolveWebDist();
   if (webDist) {
